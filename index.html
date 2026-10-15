@@ -1,0 +1,2256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>LearnAI: Computer Science Instruction and Telemetry Platform</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='4' fill='%23134E4A'/><path d='M8 8h5v12h9v4H8V8z' fill='%2314B8A6'/></svg>"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F8FAFC;--bg-subtle:#F1F5F9;
+  --header-bg:#0F3D39;--header-border:#134E4A;
+  --accent:#0D9488;--accent-hover:#0F766E;--accent-light:#CCFBF1;
+  --slate-900:#0F172A;--slate-800:#1E293B;--slate-700:#334155;--slate-600:#475569;--slate-500:#64748B;
+  --border:#CBD5E1;--border-light:#E2E8F0;--card:#FFFFFF;
+  --red:#DC2626;--red-light:#FEE2E2;--green:#16A34A;--green-light:#DCFCE7;--amber:#D97706;--amber-light:#FEF3C7;
+  --shadow-sm:0 1px 2px rgba(0,0,0,0.05);
+  --shadow-md:0 4px 6px -1px rgba(0,0,0,0.07),0 2px 4px -2px rgba(0,0,0,0.07);
+  --radius:4px;
+}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--slate-900);height:100vh;display:flex;flex-direction:column;overflow:hidden;-webkit-font-smoothing:antialiased}
+
+/* Page states */
+.page{display:none;flex-direction:column;height:100vh}
+.page.active{display:flex}
+
+/* ════════ DOMAIN & ENVIRONMENT BAR ════════ */
+.domain-bar{
+  background:#092523;color:#94A3B8;font-size:11px;font-family:'JetBrains Mono',monospace;
+  padding:4px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.08);flex-shrink:0
+}
+.domain-left{display:flex;align-items:center;gap:8px}
+.domain-ssl{color:#34D399;display:flex;align-items:center;gap:4px;font-size:10.5px}
+
+/* ════════ NAVBAR ════════ */
+.navbar{
+  background:var(--header-bg);height:50px;display:flex;align-items:center;
+  padding:0 16px;gap:16px;flex-shrink:0;border-bottom:1px solid var(--header-border);z-index:100
+}
+.logo{display:flex;align-items:center;gap:8px;color:#FFFFFF;font-weight:700;font-size:15px;flex-shrink:0;cursor:pointer}
+.logo-icon{width:26px;height:26px;background:var(--accent);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;color:#FFFFFF}
+.nav-links{display:flex;align-items:center;gap:2px}
+.nav-link{color:#94A3B8;font-size:12.5px;font-weight:500;padding:6px 10px;border-radius:var(--radius);cursor:pointer;text-decoration:none;transition:color 0.15s,background 0.15s}
+.nav-link:hover{color:#FFFFFF;background:rgba(255,255,255,0.08)}
+.nav-link.active{color:#FFFFFF;background:rgba(255,255,255,0.12);font-weight:600}
+.nav-search{flex:1;max-width:240px;margin-left:auto;position:relative}
+.nav-search input{width:100%;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:var(--radius);padding:5px 10px 5px 28px;color:#FFFFFF;font-size:12px;outline:none;font-family:inherit}
+.nav-search input::placeholder{color:#64748B}
+.nav-search svg{position:absolute;left:8px;top:50%;transform:translateY(-50%);stroke:#94A3B8}
+.nav-right{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.user-chip{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:var(--radius);padding:4px 8px}
+.user-av{width:22px;height:22px;border-radius:var(--radius);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#FFFFFF;background:#0D7A70}
+.user-name{font-size:11.5px;font-weight:600;color:#FFFFFF}
+.user-role{font-size:10px;color:#94A3B8}
+.logout-btn{display:flex;align-items:center;gap:5px;background:transparent;border:1px solid rgba(239,68,68,0.4);color:#FCA5A5;font-size:11px;font-weight:600;padding:4px 8px;border-radius:var(--radius);cursor:pointer}
+.logout-btn:hover{background:rgba(239,68,68,0.15);color:#FFFFFF}
+
+/* ════════ MAIN LAYOUT & SIDEBAR ════════ */
+.main{display:flex;flex:1;overflow:hidden}
+.sidebar{width:215px;flex-shrink:0;background:#FFFFFF;border-right:1px solid var(--border-light);overflow-y:auto;padding:12px 0;display:flex;flex-direction:column}
+.sidebar-body{flex:1;overflow-y:auto}
+.sidebar-bottom{border-top:1px solid var(--border-light);padding-top:8px;margin-top:auto}
+.sb-hd{font-size:10px;font-weight:700;letter-spacing:0.06em;color:var(--slate-500);text-transform:uppercase;padding:0 12px 6px}
+.si{display:flex;align-items:center;gap:8px;padding:7px 12px;cursor:pointer;position:relative;color:var(--slate-700);font-size:12px;font-weight:500;border-left:3px solid transparent}
+.si:hover{background:var(--bg-subtle);color:var(--slate-900)}
+.si.active{background:var(--bg-subtle);border-left-color:var(--accent);color:var(--accent);font-weight:600}
+.sicon{stroke:currentColor;flex-shrink:0}
+.slabel{flex:1}
+.tag{font-size:10px;font-weight:600;padding:2px 6px;border-radius:var(--radius);line-height:1}
+.tag-default{background:var(--border-light);color:var(--slate-700)}
+.tag-accent{background:var(--accent-light);color:var(--accent)}
+.tag-warn{background:var(--amber-light);color:var(--amber)}
+.tag-danger{background:var(--red-light);color:var(--red)}
+.sdiv{border:none;border-top:1px solid var(--border-light);margin:8px 0}
+.ssub{display:flex;align-items:center;gap:6px;padding:5px 12px 5px 28px;font-size:11.5px;color:var(--slate-600);cursor:pointer;border-left:3px solid transparent}
+.ssub:hover{color:var(--slate-900);background:var(--bg-subtle)}
+.ssub.active{color:var(--accent);font-weight:600;border-left-color:var(--accent);background:var(--bg-subtle)}
+
+/* ════════ CONTENT VIEWS ════════ */
+.content-area{flex:1;overflow-y:auto;background:var(--bg);display:flex;flex-direction:column}
+.view-pane{display:none;padding:16px;flex-direction:column;gap:14px}
+.view-pane.active{display:flex}
+
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+
+/* Cards & Headers */
+.card{background:var(--card);border:1px solid var(--border-light);border-radius:var(--radius);box-shadow:var(--shadow-sm);overflow:hidden}
+.card-hd{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border-light);background:#FFFFFF}
+.card-title{font-size:13px;font-weight:700;color:var(--slate-900);display:flex;align-items:center;gap:6px}
+.card-sub{font-size:11px;color:var(--slate-500);margin-top:2px}
+.card-body{padding:14px}
+.ptop{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.ptitle{font-size:15px;font-weight:700;color:var(--slate-900);display:flex;align-items:center;gap:8px}
+
+/* Buttons (Strictly rectangular with 4px radius) */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:6px 12px;border-radius:var(--radius);font-size:12px;font-weight:600;cursor:pointer;border:1px solid transparent;font-family:inherit}
+.btn-p{background:var(--accent);color:#FFFFFF;border-color:var(--accent)}
+.btn-p:hover{background:var(--accent-hover)}
+.btn-s{background:#FFFFFF;color:var(--slate-700);border-color:var(--border)}
+.btn-s:hover{background:var(--bg-subtle);color:var(--slate-900)}
+.btn-r{background:var(--red-light);color:var(--red);border-color:#FCA5A5}
+.btn-r:hover{background:#F87171;color:#FFFFFF}
+
+/* Form Controls */
+.form-group{margin-bottom:12px}
+.form-label{font-size:11.5px;font-weight:600;color:var(--slate-700);margin-bottom:4px;display:block}
+.form-input{
+  width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:var(--radius);
+  font-size:12.5px;font-family:inherit;color:var(--slate-900);outline:none;background:#FFFFFF
+}
+.form-input:focus{border-color:var(--accent)}
+
+/* Stat cards */
+.stat-card{background:#FFFFFF;border:1px solid var(--border-light);border-radius:var(--radius);padding:12px;text-align:left;box-shadow:var(--shadow-sm)}
+.stat-val{font-size:22px;font-weight:700;color:var(--slate-900);margin-bottom:2px}
+.stat-lbl{font-size:11px;color:var(--slate-500);font-weight:500}
+
+/* Tables */
+table{width:100%;border-collapse:collapse}
+thead th{font-size:11px;font-weight:600;color:var(--slate-500);padding:7px 10px;text-align:left;background:var(--bg-subtle);border-bottom:1px solid var(--border-light)}
+tbody tr{border-bottom:1px solid var(--border-light)}
+tbody tr:hover{background:var(--bg-subtle)}
+tbody td{padding:7px 10px;font-size:12px;color:var(--slate-800)}
+.sc-box{display:inline-block;padding:2px 6px;border-radius:var(--radius);font-size:11px;font-weight:600;text-align:center}
+
+/* Code visualizer */
+.codeblk{background:#0F172A;border-radius:var(--radius);padding:10px 12px;font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.6;color:#F8FAFC}
+.ck{color:#38BDF8}.cf{color:#C084FC}.cr{color:#F59E0B}
+.cln{display:block}
+.hl{background:rgba(245,158,11,0.2);border-left:3px solid #F59E0B;padding-left:6px;margin-left:-6px}
+
+/* Flow trace */
+.flw{display:flex;flex-direction:column;align-items:center;gap:3px;margin-top:6px}
+.fbox{background:#F1F5F9;border:1px solid #CBD5E1;color:var(--slate-800);border-radius:var(--radius);padding:3px 10px;font-size:10px;font-weight:600;min-width:70px;text-align:center}
+.fbox.active{background:#DCFCE7;border-color:#86EFAC;color:#166534}
+.fbox.end{background:#FEE2E2;border-color:#FCA5A5;color:#991B1B}
+.farr{font-size:10px;color:var(--slate-500)}
+
+/* Memory State Box */
+.sbox{background:var(--bg-subtle);border-radius:var(--radius);padding:8px 10px;border:1px solid var(--border-light)}
+.stitle{font-size:9.5px;font-weight:700;color:var(--slate-500);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px}
+.srow{display:flex;justify-content:space-between;font-size:11px;padding:2px 0;font-family:'JetBrains Mono',monospace}
+.sk{color:var(--slate-700);font-weight:600}
+
+/* Active Recall Quiz */
+.qopt{display:flex;align-items:center;gap:8px;padding:6px 9px;border-radius:var(--radius);cursor:pointer;font-size:12px;color:var(--slate-800);border:1px solid var(--border-light);margin-bottom:4px;background:#FFFFFF}
+.qopt:hover{background:var(--bg-subtle)}
+.qopt.sel{background:var(--accent-light);border-color:var(--accent);color:var(--accent);font-weight:600}
+.rc{width:12px;height:12px;border:1px solid var(--slate-500);border-radius:var(--radius);flex-shrink:0}
+.qopt.sel .rc{background:var(--accent);border-color:var(--accent)}
+
+/* Output Box */
+.output-box{background:var(--bg-subtle);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;font-size:12px;color:var(--slate-800);line-height:1.5;margin-top:8px;display:none}
+.output-box.show{display:block}
+
+/* Inbuilt Word Doc & Rich Editor */
+.doc-toolbar{display:flex;align-items:center;gap:4px;background:var(--bg-subtle);padding:5px 8px;border-radius:var(--radius) var(--radius) 0 0;border:1px solid var(--border);border-bottom:none}
+.doc-btn{background:#FFFFFF;border:1px solid var(--border);border-radius:var(--radius);padding:3px 7px;font-size:11px;font-weight:600;color:var(--slate-700);cursor:pointer}
+.doc-btn:hover{background:var(--bg-subtle);color:var(--slate-900)}
+.doc-editor{min-height:160px;max-height:260px;overflow-y:auto;background:#FFFFFF;border:1px solid var(--border);border-radius:0 0 var(--radius) var(--radius);padding:10px;font-size:12.5px;line-height:1.6;outline:none}
+.doc-editor:focus{border-color:var(--accent)}
+
+/* Dropzone */
+.dropzone{border:1px dashed var(--border);border-radius:var(--radius);padding:16px;text-align:center;background:var(--bg-subtle);cursor:pointer}
+.dropzone:hover{border-color:var(--accent);background:#FFFFFF}
+
+/* Legal Policy Text Blocks */
+.legal-section{margin-bottom:18px}
+.legal-h2{font-size:13px;font-weight:700;color:var(--slate-900);margin-bottom:6px;border-bottom:1px solid var(--border-light);padding-bottom:4px}
+.legal-p{font-size:12px;color:var(--slate-700);line-height:1.6;margin-bottom:8px}
+.legal-ul{font-size:12px;color:var(--slate-700);line-height:1.6;padding-left:18px;margin-bottom:8px}
+
+/* ════════ LIVE MEETING & TERMINAL LAB STYLES ════════ */
+.meeting-container{display:grid;grid-template-columns:1fr 300px;gap:12px;height:calc(100vh - 140px)}
+.meeting-stage{display:flex;flex-direction:column;gap:10px;overflow:hidden}
+.meeting-screen{
+  background:#0B132B;border-radius:var(--radius);border:1px solid var(--slate-700);
+  display:flex;flex-direction:column;flex:1;overflow:hidden;position:relative
+}
+.meeting-screen-header{
+  background:#1C2541;padding:6px 12px;display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid var(--slate-700);font-size:11.5px;color:#94A3B8
+}
+.meeting-controls-bar{
+  background:#0F172A;border-top:1px solid var(--slate-700);padding:8px 12px;
+  display:flex;align-items:center;justify-content:space-between;flex-shrink:0
+}
+.term-box{
+  background:#050811;border-radius:0 0 var(--radius) var(--radius);padding:10px;
+  font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#38BDF8;height:160px;
+  overflow-y:auto;display:flex;flex-direction:column;gap:4px;border:1px solid var(--slate-800)
+}
+.term-line{white-space:pre-wrap;line-height:1.4}
+.term-prompt{color:#34D399;font-weight:600}
+.term-input-row{display:flex;align-items:center;gap:6px;margin-top:auto}
+.term-input{
+  flex:1;background:transparent;border:none;outline:none;font-family:inherit;
+  font-size:11.5px;color:#F8FAFC
+}
+.attendee-item{display:flex;align-items:center;justify-content:space-between;padding:6px 8px;border-bottom:1px solid var(--border-light);font-size:11.5px}
+.chat-window{display:flex;flex-direction:column;height:240px;border:1px solid var(--border-light);border-radius:var(--radius);background:#FFFFFF}
+.chat-msgs{flex:1;overflow-y:auto;padding:8px;display:flex;flex-direction:column;gap:6px;font-size:11px}
+.chat-msg{background:var(--bg-subtle);padding:4px 8px;border-radius:var(--radius);line-height:1.4}
+
+/* Toast */
+#toast{position:fixed;bottom:16px;right:16px;background:var(--slate-900);color:#FFFFFF;padding:8px 14px;border-radius:var(--radius);font-size:12px;font-weight:500;box-shadow:var(--shadow-md);z-index:500;max-width:320px;border-left:3px solid var(--accent);pointer-events:none;display:none}
+
+/* Course View Specific Styles */
+.course-tabs-bar{display:flex;gap:4px;border-bottom:1px solid var(--border-light);background:#FFFFFF;padding:0 14px}
+.course-tab-item{padding:10px 14px;font-size:12px;font-weight:600;color:var(--slate-600);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.15s}
+.course-tab-item:hover{color:var(--slate-900);background:var(--bg-subtle)}
+.course-tab-item.active{color:var(--accent);border-bottom-color:var(--accent);background:transparent}
+.course-banner{background:#FFFFFF;border:1px solid var(--border-light);border-radius:var(--radius);padding:14px;display:flex;justify-content:space-between;align-items:center;box-shadow:var(--shadow-sm);margin-bottom:12px}
+.course-module-item{border:1px solid var(--border-light);border-radius:var(--radius);padding:12px;background:#FFFFFF;display:flex;flex-direction:column;gap:6px;transition:border-color 0.15s}
+.course-module-item:hover{border-color:var(--accent)}
+.course-code-editor{background:#0F172A;border:1px solid #1E293B;border-radius:var(--radius);color:#F8FAFC;font-family:'JetBrains Mono',monospace;font-size:12px;padding:12px;width:100%;height:200px;resize:vertical;outline:none;line-height:1.5}
+.course-code-terminal{background:#050C1A;border:1px solid #1E293B;border-radius:var(--radius);padding:10px;font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#34D399;min-height:95px;max-height:190px;overflow-y:auto;white-space:pre-wrap}
+</style>
+</head>
+<body>
+
+<!-- ════════ TOP DOMAIN & SSL ROUTE BAR ════════ -->
+<div class="domain-bar">
+  <div class="domain-left">
+    <span class="domain-ssl">
+      <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      https://
+    </span>
+    <span style="color:#FFFFFF;font-weight:600">portal.learnai.edu</span>
+    <span>/ live-node: cluster-east-secure</span>
+  </div>
+  <div>
+    <span>Security Status: Authenticated Enclave (Zero-PII)</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     PAGE 1: LOGIN PORTAL
+══════════════════════════════════════ -->
+<div id="loginPage" class="page active" style="align-items:center;justify-content:center;background:#0F172A">
+  <div style="background:#FFFFFF;border-radius:var(--radius);box-shadow:var(--shadow-md);width:400px;padding:32px;border:1px solid var(--border-light)">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:18px">
+      <div class="logo-icon">LAI</div>
+      <span style="font-size:18px;font-weight:700;color:var(--slate-900)">LearnAI Instruction Portal</span>
+    </div>
+    <div style="font-size:12px;color:var(--slate-500);margin-bottom:16px">Authenticate with institutional faculty or student credentials</div>
+
+    <div style="display:flex;background:var(--bg-subtle);border-radius:var(--radius);padding:2px;margin-bottom:16px">
+      <button class="btn btn-s" id="tabTeacher" style="flex:1;border:none;background:#FFFFFF;font-weight:600" onclick="switchRole('teacher')">Faculty Studio</button>
+      <button class="btn btn-s" id="tabStudent" style="flex:1;border:none;background:transparent" onclick="switchRole('student')">Student Workspace</button>
+    </div>
+
+    <div style="background:var(--bg-subtle);border:1px solid var(--border-light);border-radius:var(--radius);padding:8px 10px;margin-bottom:14px;font-size:11.5px;color:var(--slate-700)">
+      <div id="hintTeacherRow"><strong>Faculty Credentials:</strong> ID: <code>T-001</code> | Password: <code>teach123</code></div>
+      <div id="hintStudentRow" style="display:none"><strong>Student Credentials:</strong> ID: <code>S-001</code> | Password: <code>student123</code></div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="uid">Institutional Identifier</label>
+      <input class="form-input" id="uid" type="text" value="T-001" autocomplete="off"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="pwd">Password</label>
+      <input class="form-input" id="pwd" type="password" value="teach123" onkeydown="if(event.key==='Enter')doLogin()"/>
+    </div>
+
+    <div id="errMsg" style="color:var(--red);font-size:11.5px;min-height:16px;margin-bottom:10px"></div>
+
+    <button class="btn btn-p" style="width:100%;padding:8px" onclick="doLogin()">Authenticate and Enter</button>
+
+    <div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--border-light);display:flex;justify-content:space-between;font-size:11px">
+      <a class="footer-link" onclick="openPolicyStandalone('privacy')">Privacy Policy</a>
+      <a class="footer-link" onclick="openPolicyStandalone('terms')">Terms and Conditions</a>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     PAGE 2: FACULTY STUDIO
+══════════════════════════════════════ -->
+<div id="teacherPage" class="page">
+  <nav class="navbar">
+    <div class="logo" onclick="selectTeacherView('aiDesk')">
+      <div class="logo-icon">LAI</div>
+      LearnAI
+    </div>
+    <div class="nav-links">
+      <a class="nav-link" id="tnav-courses" onclick="switchClassCohort('py')">Courses &amp; Syllabus</a>
+      <a class="nav-link active" id="tnav-dash" onclick="selectTeacherView('aiDesk')">Telemetry Desk</a>
+      <a class="nav-link" id="tnav-meeting" onclick="selectTeacherView('liveMeeting')">Live Meeting &amp; Lab</a>
+      <a class="nav-link" id="tnav-notes" onclick="selectTeacherView('aiNotes')">Notes and Cheatsheets</a>
+      <a class="nav-link" id="tnav-assign" onclick="selectTeacherView('assignManager')">Assignments Hub</a>
+      <a class="nav-link" id="tnav-upload" onclick="selectTeacherView('uploadCenter')">Course Resources</a>
+      <a class="nav-link" id="tnav-students" onclick="selectTeacherView('classOverview')">Student Cohort</a>
+    </div>
+    <div class="nav-search">
+      <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" placeholder="Search telemetry, topics, students..." oninput="filterTeacherSearch(this.value)"/>
+    </div>
+    <div class="nav-right">
+      <div class="user-chip">
+        <div class="user-av">SJ</div>
+        <div>
+          <div class="user-name">Sarah J.</div>
+          <div class="user-role" id="activeClassTag">Faculty: CS-301</div>
+        </div>
+      </div>
+      <button class="logout-btn" onclick="doLogout()">Logout</button>
+    </div>
+  </nav>
+
+  <div class="main">
+    <!-- FACULTY SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-body">
+        <div class="sb-hd">Primary Instructional Modules</div>
+        <div class="si active" id="tsi-aiDesk" onclick="selectTeacherView('aiDesk')">
+          <svg class="sicon" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+          <span class="slabel">Telemetry Desk</span>
+        </div>
+        <div class="si" id="tsi-liveMeeting" onclick="selectTeacherView('liveMeeting')">
+          <svg class="sicon" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+          <span class="slabel">Live Meeting &amp; Lab</span>
+          <span class="tag tag-accent">Live</span>
+        </div>
+        <div class="si" id="tsi-aiNotes" onclick="selectTeacherView('aiNotes')">
+          <svg class="sicon" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          <span class="slabel">Notes and Cheatsheets</span>
+        </div>
+        <div class="si" id="tsi-assignManager" onclick="selectTeacherView('assignManager')">
+          <svg class="sicon" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          <span class="slabel">Assignments Hub</span>
+          <span class="tag tag-default" id="assignBadgeCount">3</span>
+        </div>
+        <div class="si" id="tsi-uploadCenter" onclick="selectTeacherView('uploadCenter')">
+          <svg class="sicon" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <span class="slabel">Course Resources</span>
+        </div>
+
+        <hr class="sdiv"/>
+        <div class="sb-hd">Cohort Telemetry</div>
+        <div class="si" id="tsi-classOverview" onclick="selectTeacherView('classOverview')">
+          <svg class="sicon" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span class="slabel">Cohort Overview</span>
+        </div>
+        <div class="si" id="tsi-needsAttention" onclick="selectTeacherView('needsAttention')">
+          <svg class="sicon" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <span class="slabel">Intervention Queue</span>
+          <span class="tag tag-warn" id="attnBadge">2</span>
+        </div>
+        <div class="si" id="tsi-auditLogs" onclick="selectTeacherView('auditLogs')">
+          <svg class="sicon" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          <span class="slabel">Audit Logs</span>
+        </div>
+
+        <hr class="sdiv"/>
+        <div class="sb-hd">Academic Courses &amp; Labs</div>
+        <div class="si active" id="tsi-c-py" onclick="switchClassCohort('py')">
+          <svg class="sicon" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+          <span class="slabel">Python CS-301</span>
+          <span class="tag tag-accent">Core</span>
+        </div>
+        <div class="si" id="tsi-c-java" onclick="switchClassCohort('java')">
+          <svg class="sicon" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+          <span class="slabel">Java JVM Core</span>
+          <span class="tag tag-default">Core</span>
+        </div>
+        <div class="si" id="tsi-c-cprog" onclick="switchClassCohort('cprog')">
+          <svg class="sicon" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+          <span class="slabel">C Systems Programming</span>
+          <span class="tag tag-default">Systems</span>
+        </div>
+      </div>
+
+      <!-- Relocated to Bottom: System & Policies -->
+      <div class="sidebar-bottom">
+        <div class="sb-hd">System Policies</div>
+        <div class="si" id="tsi-privacyPolicy" onclick="selectTeacherView('privacyPolicy')">
+          <svg class="sicon" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span class="slabel" style="font-size:11px">Privacy Policy</span>
+        </div>
+        <div class="si" id="tsi-termsConditions" onclick="selectTeacherView('termsConditions')">
+          <svg class="sicon" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          <span class="slabel" style="font-size:11px">Terms and Conditions</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- FACULTY CONTENT VIEWS -->
+    <div class="content-area">
+
+      <!-- VIEW: TELEMETRY DESK -->
+      <div class="view-pane active" id="tv-aiDesk">
+        <div class="ptop">
+          <div>
+            <div class="ptitle">Instructional Telemetry and Diagnostic Desk</div>
+            <div style="font-size:12px;color:var(--slate-500)">Real-time student diagnostic telemetry, prerequisite graph mapping, and intervention triggers</div>
+          </div>
+          <button class="btn btn-p" onclick="runAIDiagnosis()">Run Cohort Gap Scan</button>
+        </div>
+
+        <div class="grid-3">
+          <div class="stat-card">
+            <div class="stat-val" id="st-total">42</div>
+            <div class="stat-lbl">Enrolled CS Students</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-val" id="st-attn" style="color:var(--red)">2</div>
+            <div class="stat-lbl">Prerequisite Flags Logged</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-val" id="st-mast" style="color:var(--green)">84%</div>
+            <div class="stat-lbl">Cohort Average Benchmark</div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <!-- Mastery Table -->
+          <div class="card">
+            <div class="card-hd">
+              <div class="card-title">Concept Mastery Telemetry</div>
+              <span class="tag tag-default">Class CS-301</span>
+            </div>
+            <div class="card-body" style="padding:0">
+              <table>
+                <thead>
+                  <tr><th>Student</th><th>OOP Principles</th><th>Memory Model</th><th>Concurrency</th><th>Pointers / DataStruct</th></tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>Alex Rivera</strong> (S-001)</td>
+                    <td><span class="sc-box" style="background:#DCFCE7;color:#166534">96%</span></td>
+                    <td><span class="sc-box" style="background:#DCFCE7;color:#166534">92%</span></td>
+                    <td><span class="sc-box" style="background:#DCFCE7;color:#166534">88%</span></td>
+                    <td><span class="sc-box" style="background:#DCFCE7;color:#166534">90%</span></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Casey Smith</strong> (S-004)</td>
+                    <td><span class="sc-box" style="background:#FEF3C7;color:#92400E">68%</span></td>
+                    <td><span class="sc-box" style="background:#FEE2E2;color:#991B1B">36%</span></td>
+                    <td><span class="sc-box" style="background:#FEE2E2;color:#991B1B">32%</span></td>
+                    <td><span class="sc-box" style="background:#FEF3C7;color:#92400E">45%</span></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Emery Kumar</strong> (S-012)</td>
+                    <td><span class="sc-box" style="background:#DCFCE7;color:#166534">85%</span></td>
+                    <td><span class="sc-box" style="background:#FEF3C7;color:#92400E">74%</span></td>
+                    <td><span class="sc-box" style="background:#FEF3C7;color:#92400E">70%</span></td>
+                    <td><span class="sc-box" style="background:#DCFCE7;color:#166534">82%</span></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Jordan Miller</strong> (S-015)</td>
+                    <td><span class="sc-box" style="background:#DCFCE7;color:#166534">80%</span></td>
+                    <td><span class="sc-box" style="background:#FEF3C7;color:#92400E">64%</span></td>
+                    <td><span class="sc-box" style="background:#FEE2E2;color:#991B1B">44%</span></td>
+                    <td><span class="sc-box" style="background:#FEF3C7;color:#92400E">72%</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Prerequisite Gap Tracing -->
+          <div class="card">
+            <div class="card-hd">
+              <div class="card-title">Prerequisite Bottleneck Diagnostic</div>
+              <button class="btn btn-s" onclick="quickRemediateAll()">Dispatch Remediation</button>
+            </div>
+            <div class="card-body">
+              <div style="font-size:12px;color:var(--slate-600);margin-bottom:12px">Root cause analysis: Students failing Concurrency and Multithreading have foundational gaps in shared memory visibility and pointer mechanics:</div>
+              <div style="border:1px solid var(--border-light);border-radius:var(--radius);padding:10px;margin-bottom:8px">
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                  <span style="font-size:12px;font-weight:600">Casey Smith (S-004)</span>
+                  <span class="tag tag-danger">Intervention Needed</span>
+                </div>
+                <div style="font-size:11.5px;color:var(--slate-600);margin-top:4px">Deficiency: Heap pointer dereferencing and variable reference tracking (36%). Blocks Unit 5.</div>
+              </div>
+
+              <div style="border:1px solid var(--border-light);border-radius:var(--radius);padding:10px">
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                  <span style="font-size:12px;font-weight:600">Jordan Miller (S-015)</span>
+                  <span class="tag tag-warn">Review Scheduled</span>
+                </div>
+                <div style="font-size:11.5px;color:var(--slate-600);margin-top:4px">Deficiency: Lock synchronization and condition variable waiting (44%).</div>
+              </div>
+
+              <div class="output-box" id="deskAiOutput"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW: LIVE MEETING & TERMINAL LAB (NEW) -->
+      <div class="view-pane" id="tv-liveMeeting">
+        <div class="ptop">
+          <div>
+            <div class="ptitle">Live Meeting and Interactive Screen Share Laboratory</div>
+            <div style="font-size:12px;color:var(--slate-500)">Broadcast instructor screen, step through code explanations in real time, and execute commands on the live lab terminal</div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-s" id="btnToggleScreen" onclick="toggleScreenShare()">Share Screen</button>
+            <button class="btn btn-p" onclick="nextLiveCodeStep()">Step Code Live</button>
+          </div>
+        </div>
+
+        <div class="meeting-container">
+          <!-- Main Meeting Stage -->
+          <div class="meeting-stage">
+            <!-- Screen Share / Code Broadcast View -->
+            <div class="meeting-screen">
+              <div class="meeting-screen-header">
+                <div>
+                  <span style="color:#34D399;font-weight:700">LIVE BROADCAST:</span>
+                  <span id="screenShareTitle">Faculty Screen: CS-301 LRU Cache &amp; Pointer Mechanics</span>
+                </div>
+                <div style="display:flex;gap:10px;align-items:center">
+                  <span>FPS: 60</span>
+                  <span>Bitrate: 4500 kbps</span>
+                  <span class="tag tag-accent" style="background:#0F766E;color:#FFFFFF">SRTP Encrypted</span>
+                </div>
+              </div>
+
+              <!-- Synchronized Step Code Window -->
+              <div style="padding:12px;flex:1;overflow-y:auto;background:#0F172A">
+                <div style="font-size:11px;color:#94A3B8;margin-bottom:6px">Active Execution Frame: lru_cache.py (Line highlighted in real-time for attendees)</div>
+                <div class="codeblk" id="liveBroadcastCode">
+                  <span class="cln" id="lbl0"><span class="ck">class</span> <span class="cf">LRUCache</span>:</span>
+                  <span class="cln" id="lbl1">    <span class="ck">def</span> <span class="cf">__init__</span>(self, capacity: int):</span>
+                  <span class="cln" id="lbl2">        self.cap = capacity</span>
+                  <span class="cln" id="lbl3">        self.cache = {}  <span class="cr"># Hash Map: key -> Node</span></span>
+                  <span class="cln" id="lbl4">        self.head, self.tail = Node(0, 0), Node(0, 0)</span>
+                  <span class="cln" id="lbl5">        self.head.next, self.tail.prev = self.tail, self.head</span>
+                  <span class="cln" id="lbl6">    <span class="ck">def</span> <span class="cf">get</span>(self, key: int) -> int:</span>
+                  <span class="cln" id="lbl7">        <span class="ck">if</span> key <span class="ck">in</span> self.cache:</span>
+                  <span class="cln" id="lbl8">            node = self.cache[key]</span>
+                  <span class="cln" id="lbl9">            self._remove(node); self._add(node)  <span class="cr"># Move to most recent</span></span>
+                  <span class="cln" id="lbl10">            <span class="ck">return</span> node.val</span>
+                  <span class="cln" id="lbl11">        <span class="ck">return</span> -1</span>
+                </div>
+                <div style="margin-top:10px;background:#1E293B;padding:8px 12px;border-radius:var(--radius);font-size:11.5px;color:#CBD5E1">
+                  <strong style="color:#38BDF8">Instructor Live Explanation:</strong>
+                  <span id="liveExplanationText">Line 4-5 initializes dummy sentinel nodes (head and tail). Sentinel nodes eliminate edge-case checks when splicing nodes into the doubly linked list.</span>
+                </div>
+              </div>
+
+              <!-- Terminal Area -->
+              <div class="term-box" id="termOutput">
+                <div class="term-line" style="color:#94A3B8">LearnAI Secure Laboratory Terminal (v2.4-sandbox)</div>
+                <div class="term-line" style="color:#94A3B8">Type 'help' for lab commands, 'run' to execute solution, 'step' to step code.</div>
+                <div class="term-line"><span class="term-prompt">instructor@cs301:~$</span> python3 lru_cache.py --test-concurrency</div>
+                <div class="term-line" style="color:#A7F3D0">>> Initializing LRU Cache with capacity=2</div>
+                <div class="term-line" style="color:#A7F3D0">>> put(1, 1), put(2, 2) completed</div>
+                <div class="term-line" style="color:#A7F3D0">>> get(1) returns 1 (Node 1 moved to MRU position)</div>
+                <div class="term-line" style="color:#A7F3D0">>> put(3, 3) evicts key 2 (LRU node successfully purged)</div>
+                <div class="term-line" style="color:#34D399;font-weight:600">>> ALL TEST ASSERTIONS PASSED (O(1) verified)</div>
+              </div>
+
+              <!-- Terminal Input Bar -->
+              <div style="background:#0F172A;border-top:1px solid var(--slate-800);padding:6px 10px;display:flex;align-items:center;gap:6px">
+                <span class="term-prompt" style="font-size:11px">instructor@cs301:~$</span>
+                <input class="term-input" id="termInput" placeholder="Enter shell command (e.g. run, gcc, python3, valgrind, clear)..." onkeydown="handleTermKey(event)"/>
+                <button class="btn btn-s" style="padding:2px 8px;font-size:11px;background:#1E293B;color:#FFFFFF;border-color:var(--slate-700)" onclick="executeTermCommand()">Run</button>
+              </div>
+
+              <!-- Controls Bar -->
+              <div class="meeting-controls-bar">
+                <div style="display:flex;gap:6px">
+                  <button class="btn btn-s" id="btnMic" style="background:#1E293B;color:#FFFFFF;border-color:var(--slate-700)" onclick="toggleMic()">Mic: On</button>
+                  <button class="btn btn-s" id="btnCam" style="background:#1E293B;color:#FFFFFF;border-color:var(--slate-700)" onclick="toggleCam()">Camera: On</button>
+                </div>
+                <div style="display:flex;gap:6px">
+                  <button class="btn btn-s" style="background:#1E293B;color:#FFFFFF;border-color:var(--slate-700)" onclick="toast('Live session recording saved to secure archive.')">Record</button>
+                  <button class="btn btn-r" onclick="toast('Meeting broadcast ended.')">Leave Room</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Meeting Sidebar: Attendees & Q&A Chat -->
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div class="card" style="flex:1">
+              <div class="card-hd"><div class="card-title">Enrolled Attendees (42)</div><span class="tag tag-accent">5 Connected</span></div>
+              <div class="card-body" style="padding:0">
+                <div class="attendee-item"><strong>Sarah J. (Host)</strong><span class="tag tag-accent">Screen Sharing</span></div>
+                <div class="attendee-item"><span>Alex Rivera</span><span class="tag tag-default">Audio Active</span></div>
+                <div class="attendee-item"><span>Casey Smith</span><span class="tag tag-default">Viewing</span></div>
+                <div class="attendee-item"><span>Emery Kumar</span><span class="tag tag-default">Viewing</span></div>
+                <div class="attendee-item"><span>Jordan Miller</span><span class="tag tag-default">Viewing</span></div>
+              </div>
+            </div>
+
+            <!-- Lab Q&A Chat -->
+            <div class="card" style="flex:1;display:flex;flex-direction:column">
+              <div class="card-hd"><div class="card-title">Laboratory Chat &amp; Q&amp;A</div></div>
+              <div class="card-body" style="padding:6px;display:flex;flex-direction:column;flex:1">
+                <div class="chat-msgs" id="chatMsgsBox">
+                  <div class="chat-msg"><strong>Alex:</strong> How does the sentinel node prevent null checks in get()?</div>
+                  <div class="chat-msg"><strong>Sarah J. (Faculty):</strong> Sentinel head/tail always exist, so node.prev and node.next are guaranteed non-null!</div>
+                  <div class="chat-msg"><strong>Casey:</strong> Could we run Valgrind on the C implementation next?</div>
+                </div>
+                <div style="display:flex;gap:4px;margin-top:6px">
+                  <input class="form-input" id="meetingChatInput" placeholder="Send question to class..." onkeydown="if(event.key==='Enter')sendMeetingChat()"/>
+                  <button class="btn btn-p" onclick="sendMeetingChat()">Send</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW: NOTES & CHEATSHEETS -->
+      <div class="view-pane" id="tv-aiNotes">
+        <div class="ptop">
+          <div>
+            <div class="ptitle">Instructional Notes and Reference Cheatsheets Studio</div>
+            <div style="font-size:12px;color:var(--slate-500)">Engineering-level syllabus content for Python, Java, and C Programming with automated synthesis and faculty verification</div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-s" onclick="generateAINotes()">Synthesize Format</button>
+            <button class="btn btn-p" onclick="verifyAndSendNotes()">Verify and Dispatch</button>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <!-- Source Dataset Selection -->
+          <div class="card">
+            <div class="card-hd">
+              <div class="card-title">1. Curricular Source and Raw Material</div>
+              <span class="tag tag-default">Verified Dataset</span>
+            </div>
+            <div class="card-body">
+              <div class="form-group">
+                <label class="form-label">Programming Language Track</label>
+                <select class="form-input" id="noteLangSelect" onchange="loadPresetDataset(this.value)">
+                  <option value="python">Python: Metaclasses, GIL, Memory Management, Coroutines</option>
+                  <option value="java">Java: JVM Architecture, Collections Internals, Concurrency</option>
+                  <option value="cprog">C Programming: Pointer Arithmetic, Dynamic Heap, Struct Padding</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Topic Focus</label>
+                <select class="form-input" id="noteConceptSelect" onchange="updateNoteConceptText()"></select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Instructor Outline / Notes Input</label>
+                <textarea class="form-input" id="rawNotesInput" style="height:180px;line-height:1.6;font-family:'JetBrains Mono',monospace;font-size:11.5px"></textarea>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Target Format</label>
+                <div style="display:flex;gap:12px">
+                  <label style="font-size:12px;cursor:pointer"><input type="radio" name="aiFormat" value="short" checked/> Concise Revision Notes</label>
+                  <label style="font-size:12px;cursor:pointer"><input type="radio" name="aiFormat" value="cheatsheet"/> Syntax and Architecture Cheatsheet</label>
+                  <label style="font-size:12px;cursor:pointer"><input type="radio" name="aiFormat" value="flashcards"/> Recall Assessment Pairs</label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Verified Review Editor -->
+          <div class="card">
+            <div class="card-hd">
+              <div class="card-title">2. Faculty Verification and Publication Stage</div>
+              <span class="tag tag-warn" id="verifyBadge">Pending Faculty Review</span>
+            </div>
+            <div class="card-body">
+              <div style="font-size:12px;color:var(--slate-600);margin-bottom:8px">Faculty Verification Stage: Review, amend, and approve the synthesized instructional text before dispatching to student portals.</div>
+              <div class="form-group">
+                <label class="form-label">Published Document Title</label>
+                <input class="form-input" id="verifiedNoteTitle" value="Python Engineering Cheatsheet: GIL and Concurrency"/>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Approved Text Content</label>
+                <textarea class="form-input" id="verifiedNoteContent" style="height:240px;line-height:1.6;font-family:'JetBrains Mono',monospace;font-size:11.5px"></textarea>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <span style="font-size:11px;color:var(--slate-500)">Verification State: <strong id="noteStatusText">Draft Ready</strong></span>
+                <button class="btn btn-p" onclick="verifyAndSendNotes()">Approve and Publish to Students</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW: ASSIGNMENTS HUB -->
+      <div class="view-pane" id="tv-assignManager">
+        <div class="ptop">
+          <div>
+            <div class="ptitle">Assignments Hub: Online Submissions and Offline Laboratory Tasks</div>
+            <div style="font-size:12px;color:var(--slate-500)">Configure deliverables supporting in-browser Word doc editing, source code uploads, or physical laboratory submissions</div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <!-- Active Assignments Table -->
+          <div class="card">
+            <div class="card-hd">
+              <div class="card-title">Current Course Assignments</div>
+              <span class="tag tag-default">Active Cohort</span>
+            </div>
+            <div class="card-body" style="padding:0">
+              <table>
+                <thead>
+                  <tr><th>Title</th><th>Track</th><th>Mode</th><th>Submissions</th><th>Action</th></tr>
+                </thead>
+                <tbody id="teacherAssignTbody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Post New Assignment Form -->
+          <div class="card">
+            <div class="card-hd">
+              <div class="card-title">Configure Assignment Task</div>
+              <button class="btn btn-s" onclick="aiGenerateAssignPrompt()">Generate Rubric Template</button>
+            </div>
+            <div class="card-body">
+              <div class="form-group">
+                <label class="form-label">Assignment Title</label>
+                <input class="form-input" id="newAssignTitle" value="Thread-Safe Ring Buffer in Java"/>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+                <div class="form-group">
+                  <label class="form-label">Subject</label>
+                  <select class="form-input" id="newAssignSubject">
+                    <option value="Java">Java JVM Core</option>
+                    <option value="Python">Python CS-301</option>
+                    <option value="C Programming">C Systems Programming</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Submission Mode</label>
+                  <select class="form-input" id="newAssignMode">
+                    <option value="Online">Online: Inbuilt Editor or Upload</option>
+                    <option value="Offline Lab">Offline Lab: Physical Verification</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Total Points</label>
+                  <input class="form-input" id="newAssignPoints" type="number" value="100"/>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Problem Statement</label>
+                <textarea class="form-input" id="newAssignPrompt" style="height:90px;line-height:1.5">Implement a bounded circular ring buffer with synchronized write() and read() operations using Condition variables without busy-waiting. Provide unit test proof.</textarea>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Grading Rubric Specifications</label>
+                <textarea class="form-input" id="newAssignRubric" style="height:60px;line-height:1.5">1. Lock safety and monitor blocks (40 pts)
+2. Condition queue handling (40 pts)
+3. Test suite coverage (20 pts)</textarea>
+              </div>
+              <button class="btn btn-p" style="width:100%" onclick="saveAndPublishAssignment()">Publish Assignment Task</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW: COURSE RESOURCES -->
+      <div class="view-pane" id="tv-uploadCenter">
+        <div class="ptop">
+          <div>
+            <div class="ptitle">Course Resources and Lecture Materials</div>
+            <div style="font-size:12px;color:var(--slate-500)">Upload specifications, source code templates, and reference documentation for cohort access</div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-hd"><div class="card-title">Upload Course Material</div></div>
+            <div class="card-body">
+              <div class="dropzone" onclick="document.getElementById('fileUploadInput').click()">
+                <div style="font-size:13px;font-weight:600;color:var(--slate-800)">Click to browse or drop file here</div>
+                <div style="font-size:11px;color:var(--slate-500);margin-top:4px">Accepted: .pdf, .docx, .py, .java, .c, .zip (Max: 50MB)</div>
+                <input type="file" id="fileUploadInput" style="display:none" onchange="handleTeacherFileUpload(this)"/>
+              </div>
+
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px">
+                <div class="form-group">
+                  <label class="form-label">Subject</label>
+                  <select class="form-input" id="uploadSubject">
+                    <option value="Python">Python CS-301</option>
+                    <option value="Java">Java JVM Core</option>
+                    <option value="C Programming">C Systems Programming</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Format</label>
+                  <select class="form-input" id="uploadType">
+                    <option value="Lecture PDF">Lecture Slide Document</option>
+                    <option value="Source Template">Source Code Starter</option>
+                    <option value="Specification">Technical Specification</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Resource Label</label>
+                <input class="form-input" id="uploadTitle" value="Advanced C Pointers and Memory Allocation Specification"/>
+              </div>
+              <button class="btn btn-p" style="width:100%" onclick="submitResourceUpload()">Publish to Student Roster</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-hd"><div class="card-title">Active Roster Resources</div></div>
+            <div class="card-body" style="padding:0">
+              <table>
+                <thead><tr><th>Document Name</th><th>Track</th><th>Format</th><th>Size</th><th>Action</th></tr></thead>
+                <tbody id="teacherResourcesTbody">
+                  <tr><td><strong>python_concurrency_deepdive.pdf</strong></td><td>Python</td><td><span class="tag tag-default">PDF</span></td><td>2.4 MB</td><td><button class="btn btn-s" onclick="toast('Downloading python_concurrency_deepdive.pdf')">Download</button></td></tr>
+                  <tr><td><strong>jvm_memory_architecture_spec.pdf</strong></td><td>Java</td><td><span class="tag tag-default">PDF</span></td><td>3.8 MB</td><td><button class="btn btn-s" onclick="toast('Downloading jvm_memory_architecture_spec.pdf')">Download</button></td></tr>
+                  <tr><td><strong>c_dynamic_memory_allocator.c</strong></td><td>C</td><td><span class="tag tag-default">Source</span></td><td>145 KB</td><td><button class="btn btn-s" onclick="toast('Downloading c_dynamic_memory_allocator.c')">Download</button></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW: COHORT OVERVIEW -->
+      <div class="view-pane" id="tv-classOverview">
+        <div class="ptop">
+          <div>
+            <div class="ptitle">Cohort Overview and Roster Telemetry</div>
+            <div style="font-size:12px;color:var(--slate-500)">Enrollment verification, benchmark records, and lab execution rates</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-hd">
+            <div class="card-title">Student Roster: CS-301</div>
+            <input type="text" placeholder="Filter roster..." class="form-input" style="width:180px;padding:4px 8px;font-size:11.5px" oninput="filterRoster(this.value)"/>
+          </div>
+          <div class="card-body" style="padding:0">
+            <table id="rosterTable">
+              <thead><tr><th>Student Name</th><th>Identifier</th><th>Enrollment Status</th><th>Track</th><th>Benchmark Score</th></tr></thead>
+              <tbody>
+                <tr><td><strong>Alex Rivera</strong></td><td>S-001</td><td><span class="tag tag-accent">Active</span></td><td>Python CS-301</td><td>96% High Readiness</td></tr>
+                <tr><td><strong>Casey Smith</strong></td><td>S-004</td><td><span class="tag tag-warn">Review Flagged</span></td><td>Python CS-301</td><td>36% Stalled</td></tr>
+                <tr><td><strong>Emery Kumar</strong></td><td>S-012</td><td><span class="tag tag-accent">Active</span></td><td>Java JVM Core</td><td>85% Competent</td></tr>
+                <tr><td><strong>Jordan Miller</strong></td><td>S-015</td><td><span class="tag tag-warn">Review Flagged</span></td><td>C Systems</td><td>64% Developing</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW: INTERVENTION QUEUE -->
+      <div class="view-pane" id="tv-needsAttention">
+        <div class="ptop">
+          <div>
+            <div class="ptitle">Priority Intervention Queue</div>
+            <div style="font-size:12px;color:var(--slate-500)">Diagnostic alerts triggered by prerequisite test failures</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-hd"><div class="card-title">Active Flags (2 Pending Review)</div></div>
+          <div class="card-body" style="display:flex;flex-direction:column;gap:10px">
+            <div style="border:1px solid var(--border-light);border-left:3px solid var(--red);padding:10px;border-radius:var(--radius)">
+              <div style="display:flex;justify-content:space-between">
+                <span style="font-size:12px;font-weight:700">Casey Smith (S-004): Prerequisite Memory Allocation Failure</span>
+                <span class="tag tag-danger">Critical Gap</span>
+              </div>
+              <div style="font-size:11.5px;color:var(--slate-600);margin-top:4px">Failed pointer and memory management assessment (36%). Access to Unit 5 multithreading paused.</div>
+              <div style="margin-top:8px;display:flex;gap:6px">
+                <button class="btn btn-p" onclick="toast('Dispatched Memory Allocation Lab to Casey Smith.')">Assign Review Module</button>
+              </div>
+            </div>
+
+            <div style="border:1px solid var(--border-light);border-left:3px solid var(--amber);padding:10px;border-radius:var(--radius)">
+              <div style="display:flex;justify-content:space-between">
+                <span style="font-size:12px;font-weight:700">Jordan Miller (S-015): Concurrency Race Condition Incomplete</span>
+                <span class="tag tag-warn">Developing</span>
+              </div>
+              <div style="font-size:11.5px;color:var(--slate-600);margin-top:4px">Synchronization blocks failed race condition stress tests.</div>
+              <div style="margin-top:8px;display:flex;gap:6px">
+                <button class="btn btn-s" onclick="toast('Scheduled faculty check for Jordan Miller.')">Schedule 1-on-1 Check</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW: AUDIT LOGS -->
+      <div class="view-pane" id="tv-auditLogs">
+        <div class="ptop">
+          <div>
+            <div class="ptitle">Cryptographic Audit and Event Telemetry Log</div>
+            <div style="font-size:12px;color:var(--slate-500)">Immutable verification log of faculty approvals, assignment publications, and telemetry checks</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-hd"><div class="card-title">System Event Ledger</div></div>
+          <div class="card-body" style="padding:0">
+            <table>
+              <thead><tr><th>Timestamp (UTC)</th><th>Actor</th><th>Operation Description</th><th>Verification Status</th></tr></thead>
+              <tbody>
+                <tr><td>18:32:04</td><td>Faculty (T-001)</td><td>Approved and published cheatsheet: Java JVM Architecture</td><td><span class="tag tag-accent">Verified</span></td></tr>
+                <tr><td>18:15:10</td><td>Faculty (T-001)</td><td>Published online assignment: Thread-Safe Ring Buffer</td><td><span class="tag tag-accent">Published</span></td></tr>
+                <tr><td>18:02:45</td><td>System Telemetry</td><td>Automated diagnostic scan completed for 42 students</td><td><span class="tag tag-default">Logged</span></td></tr>
+                <tr><td>17:55:18</td><td>Student (S-004)</td><td>Submitted Diagnostic Unit 4: Memory Model Check</td><td><span class="tag tag-default">Logged</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW: PRIVACY POLICY (MOVED DOWN) -->
+      <div class="view-pane" id="tv-privacyPolicy">
+        <div class="ptop">
+          <div>
+            <div class="ptitle">Institutional Data Privacy Policy</div>
+            <div style="font-size:12px;color:var(--slate-500)">Compliance frameworks: FERPA (34 CFR Part 99), DPDP Act 2023, and GDPR Data Minimization Regulations</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-hd"><div class="card-title">Data Protection Standards and Governance</div><span class="tag tag-accent">Version 2.4 - Legally Binding</span></div>
+          <div class="card-body">
+            <div class="legal-section">
+              <div class="legal-h2">1. Data Controller and Educational Jurisdiction</div>
+              <div class="legal-p">LearnAI operates as a secure data processor for accredited educational institutions. All student educational records are processed in strict compliance with the Family Educational Rights and Privacy Act (FERPA, 20 U.S.C. 1232g), India Digital Personal Data Protection Act 2023 (DPDP), and European Union General Data Protection Regulation (GDPR, Regulation EU 2016/679).</div>
+            </div>
+
+            <div class="legal-section">
+              <div class="legal-h2">2. Zero-PII Ingestion and Architectural Anonymization</div>
+              <div class="legal-p">The platform enforces strict zero-PII boundaries:</div>
+              <ul class="legal-ul">
+                <li>Student identifying data (real names, government student IDs, institutional email addresses) are never transmitted to external computational APIs.</li>
+                <li>All diagnostic prompts and code traces are scrubbed locally using in-memory cryptographic pseudonymization prior to telemetry processing.</li>
+                <li>Code execution and step-tracing run entirely client-side within the student browser sandbox.</li>
+              </ul>
+            </div>
+
+            <div class="legal-section">
+              <div class="legal-h2">3. Ephemeral Telemetry and Zero Model Training</div>
+              <div class="legal-p">Student assignment submissions, source code, and diagnostic quiz responses are never used to train public or proprietary machine learning models. Instructional telemetry is retained solely within the institutional database and purged in accordance with institutional data retention schedules.</div>
+            </div>
+
+            <div class="legal-section">
+              <div class="legal-h2">4. Rights of Access, Portability, and Erasure</div>
+              <div class="legal-p">Enrolled students and faculty maintain the right to inspect all diagnostic telemetry recorded under their institutional identifier, export submitted work in standard text formats, and request permanent deletion of historical assessment attempts upon course completion.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW: TERMS AND CONDITIONS (MOVED DOWN) -->
+      <div class="view-pane" id="tv-termsConditions">
+        <div class="ptop">
+          <div>
+            <div class="ptitle">Institutional Terms and Conditions</div>
+            <div style="font-size:12px;color:var(--slate-500)">Academic integrity governance, code licensing, and platform usage terms</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-hd"><div class="card-title">Academic and Computational Service Terms</div><span class="tag tag-default">Effective: Fall Academic Term</span></div>
+          <div class="card-body">
+            <div class="legal-section">
+              <div class="legal-h2">1. Academic Integrity and Originality Requirements</div>
+              <div class="legal-p">All source code and documentation submitted through the inbuilt Word Doc editor or file upload interface must represent the original intellectual work of the submitting student. While Socratic hints and conceptual visualizers are provided for pedagogical assistance, direct submission of unverified third-party solutions constitutes academic misconduct subject to institutional disciplinary review.</div>
+            </div>
+
+            <div class="legal-section">
+              <div class="legal-h2">2. Intellectual Property of Student Work</div>
+              <div class="legal-p">Students retain 100% intellectual property ownership of all source code, algorithms, and documentation authored within this workspace. LearnAI and the host institution claim no patent, copyright, or commercial rights over student assignment submissions.</div>
+            </div>
+
+            <div class="legal-section">
+              <div class="legal-h2">3. Authorized Account Access</div>
+              <div class="legal-p">Institutional credentials (Faculty T-001 and Student S-001 series) are non-transferable. Users are solely responsible for actions performed under their authenticated session. Any attempt to exploit, reverse-engineer, or compromise the client-side sandbox execution environment is strictly prohibited.</div>
+            </div>
+
+            <div class="legal-section">
+              <div class="legal-h2">4. Service Availability and Local Resilience</div>
+              <div class="legal-p">The platform is engineered with client-side failover capabilities allowing core code visualizers and local draft saving to operate continuously even during transient network disconnects.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW: TEACHER COURSE CURRICULUM & SYLLABUS -->
+      <div class="view-pane" id="tv-courseView">
+        <div class="course-banner">
+          <div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <span class="tag tag-accent" id="tcBadge">Python 3.12+</span>
+              <span style="font-size:11px;color:var(--slate-500);font-family:'JetBrains Mono',monospace" id="tcCode">CS-301</span>
+              <span class="tag tag-default" id="tcStatusTag">Active Cohort</span>
+            </div>
+            <div class="ptitle" style="margin-top:4px" id="tcTitle">Python CS-301: Advanced Systems, Data Structures &amp; Concurrency</div>
+            <div style="font-size:12px;color:var(--slate-600);margin-top:2px" id="tcDesc">In-depth study of CPython internals, Global Interpreter Lock (GIL), asynchronous event loops, and high-performance algorithms.</div>
+          </div>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-s" id="tcCourseBtnPy" onclick="switchClassCohort('py')">Python</button>
+            <button class="btn btn-s" id="tcCourseBtnJava" onclick="switchClassCohort('java')">Java</button>
+            <button class="btn btn-s" id="tcCourseBtnC" onclick="switchClassCohort('cprog')">C Systems</button>
+            <button class="btn btn-p" onclick="dispatchCourseLab()">Dispatch Course Lab</button>
+          </div>
+        </div>
+
+        <!-- Course Sub-Tabs -->
+        <div class="card" style="border-radius:var(--radius)">
+          <div class="course-tabs-bar">
+            <div class="course-tab-item active" id="tctab-btn-modules" onclick="switchCourseSubTab('modules')">Curriculum &amp; Syllabus (Units 1-5)</div>
+            <div class="course-tab-item" id="tctab-btn-sandbox" onclick="switchCourseSubTab('sandbox')">Interactive Code Lab &amp; Compiler</div>
+            <div class="course-tab-item" id="tctab-btn-cheatsheet" onclick="switchCourseSubTab('cheatsheet')">Faculty Verified Cheatsheets</div>
+            <div class="course-tab-item" id="tctab-btn-assign" onclick="switchCourseSubTab('assign')">Course Lab Assignments</div>
+            <div class="course-tab-item" id="tctab-btn-telemetry" onclick="switchCourseSubTab('telemetry')">Cohort Diagnostic Mastery</div>
+          </div>
+
+          <!-- Subtab 1: Modules -->
+          <div class="card-body" id="tctab-modules">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+              <div>
+                <div style="font-size:13px;font-weight:700">Course Syllabus &amp; Learning Modules</div>
+                <div style="font-size:11.5px;color:var(--slate-500)">5 progressive units with deterministic prerequisite diagnostics</div>
+              </div>
+              <span class="tag tag-default" id="tcCohortBenchmark">Cohort Benchmark: 88%</span>
+            </div>
+            <div id="tcModulesContainer" style="display:flex;flex-direction:column;gap:10px"></div>
+          </div>
+
+          <!-- Subtab 2: Interactive Sandbox -->
+          <div class="card-body" id="tctab-sandbox" style="display:none">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+              <span style="font-size:12.5px;font-weight:700">Interactive Runtime Environment</span>
+              <div style="display:flex;gap:6px">
+                <button class="btn btn-p" onclick="runTeacherCourseCode()">Compile &amp; Execute</button>
+                <button class="btn btn-s" onclick="resetTeacherCourseCode()">Reset Starter</button>
+              </div>
+            </div>
+            <textarea class="course-code-editor" id="teacherCourseEditor" spellcheck="false"></textarea>
+            <div style="margin-top:10px">
+              <div style="font-size:11px;font-weight:700;color:var(--slate-600);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.05em">Compiler Output / Diagnostic Telemetry</div>
+              <div class="course-code-terminal" id="teacherCourseTerminal">Click "Compile &amp; Execute" to evaluate code in secure sandbox...</div>
+            </div>
+          </div>
+
+          <!-- Subtab 3: Cheatsheets -->
+          <div class="card-body" id="tctab-cheatsheet" style="display:none">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+              <div>
+                <div style="font-size:13px;font-weight:700" id="tcSheetTitle">Faculty Synthesized Cheatsheet</div>
+                <div style="font-size:11.5px;color:var(--slate-500)">Verified syllabus citations and syntax reference</div>
+              </div>
+              <button class="btn btn-p" onclick="publishActiveCourseCheatsheet()">Sync &amp; Publish to Students</button>
+            </div>
+            <div class="output-box" id="tcSheetBody" style="display:block;white-space:pre-wrap;font-family:'JetBrains Mono',monospace;font-size:12px;background:#F8FAFC"></div>
+          </div>
+
+          <!-- Subtab 4: Assignments -->
+          <div class="card-body" id="tctab-assign" style="display:none">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+              <div style="font-size:13px;font-weight:700">Assignments &amp; Physical Lab Requirements</div>
+              <button class="btn btn-s" onclick="selectTeacherView('assignManager')">Open Full Assignments Hub</button>
+            </div>
+            <div id="tcAssignmentsContainer" style="display:flex;flex-direction:column;gap:8px"></div>
+          </div>
+
+          <!-- Subtab 5: Telemetry -->
+          <div class="card-body" id="tctab-telemetry" style="display:none">
+            <div style="font-size:13px;font-weight:700;margin-bottom:4px">Course-Specific Diagnostic Mastery Telemetry</div>
+            <div style="font-size:11.5px;color:var(--slate-500);margin-bottom:12px">Breakdown of student performance across core concepts</div>
+            <div id="tcTelemetryContainer"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     PAGE 3: STUDENT WORKSPACE
+══════════════════════════════════════ -->
+<div id="studentPage" class="page">
+  <nav class="navbar">
+    <div class="logo" onclick="selectStudentView('visualizer')">
+      <div class="logo-icon">LAI</div>
+      LearnAI
+    </div>
+    <div class="nav-links">
+      <a class="nav-link" id="snav-courses" onclick="openStudentCourse('py')">Enrolled Courses</a>
+      <a class="nav-link active" id="snav-lab" onclick="selectStudentView('visualizer')">Code Tracer Lab</a>
+      <a class="nav-link" id="snav-meeting" onclick="selectStudentView('sLiveMeeting')">Live Meeting &amp; Lab</a>
+      <a class="nav-link" id="snav-notes" onclick="selectStudentView('myNotes')">Approved Notes &amp; Cheatsheets</a>
+      <a class="nav-link" id="snav-assign" onclick="selectStudentView('myAssign')">Assignments &amp; Editor</a>
+      <a class="nav-link" id="snav-res" onclick="selectStudentView('classResources')">Course Downloads</a>
+    </div>
+    <div class="nav-search">
+      <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" placeholder="Search lessons, notes, tasks..."/>
+    </div>
+    <div class="nav-right">
+      <div class="user-chip">
+        <div class="user-av">AR</div>
+        <div>
+          <div class="user-name" id="studentName">Alex Rivera</div>
+          <div class="user-role" id="studentIdLabel">S-001: CS-301</div>
+        </div>
+      </div>
+      <button class="logout-btn" onclick="doLogout()">Logout</button>
+    </div>
+  </nav>
+
+  <div class="main">
+    <!-- STUDENT SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-body">
+        <div class="sb-hd">Learning Modules</div>
+        <div class="si active" id="ssi-visualizer" onclick="selectStudentView('visualizer')">
+          <svg class="sicon" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          <span class="slabel">Code Tracer Lab</span>
+        </div>
+        <div class="si" id="ssi-sLiveMeeting" onclick="selectStudentView('sLiveMeeting')">
+          <svg class="sicon" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+          <span class="slabel">Live Meeting &amp; Lab</span>
+          <span class="tag tag-accent">Live</span>
+        </div>
+        <div class="si" id="ssi-myNotes" onclick="selectStudentView('myNotes')">
+          <svg class="sicon" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          <span class="slabel">Faculty Notes &amp; Cheatsheets</span>
+        </div>
+        <div class="si" id="ssi-myAssign" onclick="selectStudentView('myAssign')">
+          <svg class="sicon" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          <span class="slabel">Assignments &amp; Editor</span>
+          <span class="tag tag-accent" id="studentAssignBadge">3 Tasks</span>
+        </div>
+        <div class="si" id="ssi-classResources" onclick="selectStudentView('classResources')">
+          <svg class="sicon" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <span class="slabel">Course Downloads</span>
+        </div>
+
+        <hr class="sdiv"/>
+        <div class="sb-hd">Enrolled Courses</div>
+        <div class="si" id="ssi-c-py" onclick="openStudentCourse('py')">
+          <svg class="sicon" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+          <span class="slabel">Python CS-301</span>
+          <span class="tag tag-accent">Enrolled</span>
+        </div>
+        <div class="si" id="ssi-c-java" onclick="openStudentCourse('java')">
+          <svg class="sicon" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+          <span class="slabel">Java JVM Core</span>
+          <span class="tag tag-default">Enrolled</span>
+        </div>
+        <div class="si" id="ssi-c-cprog" onclick="openStudentCourse('cprog')">
+          <svg class="sicon" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+          <span class="slabel">C Systems Programming</span>
+          <span class="tag tag-default">Enrolled</span>
+        </div>
+
+        <hr class="sdiv"/>
+        <div class="sb-hd">Interactive Tracer Units</div>
+        <div class="ssub active" id="ssub-loops" onclick="selectStudentTopic('loops')">Python Loops and Range</div>
+        <div class="ssub" id="ssub-variables" onclick="selectStudentTopic('variables')">Variables and Pointer State</div>
+        <div class="ssub" id="ssub-strings" onclick="selectStudentTopic('strings')">Strings and Index Bounds</div>
+        <div class="ssub" id="ssub-functions" onclick="selectStudentTopic('functions')">Functions and Call Frames</div>
+        <div class="ssub" id="ssub-javaOop" onclick="selectStudentTopic('javaOop')">Java Virtual Method Table</div>
+        <div class="ssub" id="ssub-cPointers" onclick="selectStudentTopic('cPointers')">C Pointers and Heap Free</div>
+      </div>
+
+      <!-- Relocated to Bottom: Policies -->
+      <div class="sidebar-bottom">
+        <div class="sb-hd">Institutional Policies</div>
+        <div class="si" id="ssi-sPrivacy" onclick="selectStudentView('sPrivacy')">
+          <svg class="sicon" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span class="slabel" style="font-size:11px">Privacy Policy</span>
+        </div>
+        <div class="si" id="ssi-sTerms" onclick="selectStudentView('sTerms')">
+          <svg class="sicon" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          <span class="slabel" style="font-size:11px">Terms and Conditions</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- STUDENT PANES -->
+    <div class="content-area">
+
+      <!-- STUDENT VIEW: CODE TRACER LAB -->
+      <div class="view-pane active" id="sv-visualizer">
+        <div class="ptop">
+          <div>
+            <span class="ptitle" id="studentTopicTitle">Python Fundamentals: Loops and Range</span>
+            <div style="font-size:12px;color:var(--slate-500)" id="studentTopicSub">Step-by-step code visualization, active memory inspection, and conceptual recall</div>
+          </div>
+          <span class="tag tag-accent">Local Browser Execution</span>
+        </div>
+
+        <div class="grid-2">
+          <!-- Tracer Box -->
+          <div class="card">
+            <div class="card-hd">
+              <div class="card-title">Code Execution Tracer</div>
+              <div style="display:flex;gap:6px">
+                <button class="btn btn-p" id="stepBtn" onclick="nextVisualizerStep()">Step Execution</button>
+                <button class="btn btn-s" onclick="resetVisualizer()">Reset</button>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="codeblk" id="visualCodeBlk"></div>
+
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px">
+                <div class="flw" id="visualFlowBlk"></div>
+                <div class="sbox">
+                  <div class="stitle">Virtual Memory Variables</div>
+                  <div id="visualVarBlk"></div>
+                  <div style="border-top:1px solid var(--border-light);margin-top:6px;padding-top:4px">
+                    <div class="stitle">Standard Output</div>
+                    <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--slate-900);min-height:18px" id="consoleOutput">Waiting for execution...</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Active Recall Quiz -->
+          <div class="card">
+            <div class="card-hd">
+              <div class="card-title">Check for Understanding</div>
+              <span class="tag tag-default">Formative Assessment</span>
+            </div>
+            <div class="card-body">
+              <div style="font-size:11.5px;font-weight:600;color:var(--accent);margin-bottom:6px" id="quizTagTitle">QUIZ: Loop Execution Bounds</div>
+              <div style="font-size:12.5px;font-weight:600;color:var(--slate-900);margin-bottom:10px" id="quizQuestionText">For range(2, 7, 2), what exact sequence of numbers will the loop visit?</div>
+              <div id="quizOptionsList"></div>
+
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px">
+                <button class="btn btn-p" onclick="submitActiveQuiz()">Submit Answer</button>
+                <span id="quizFeedback" style="font-size:12px;font-weight:600"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STUDENT VIEW: LIVE MEETING (STUDENT ATTENDEE) -->
+      <div class="view-pane" id="sv-sLiveMeeting">
+        <div class="ptop">
+          <div>
+            <div class="ptitle">Live Laboratory Stream: CS-301 Section 1</div>
+            <div style="font-size:12px;color:var(--slate-500)">Connected to Faculty Broadcast: Professor Sarah J. is sharing screen and terminal</div>
+          </div>
+          <span class="tag tag-accent">Stream Active (Synced)</span>
+        </div>
+
+        <div class="meeting-container">
+          <div class="meeting-stage">
+            <div class="meeting-screen">
+              <div class="meeting-screen-header">
+                <div>
+                  <span style="color:#34D399;font-weight:700">INCOMING BROADCAST:</span>
+                  <span>Professor Sarah J. Screen &amp; Step Execution</span>
+                </div>
+                <div style="display:flex;gap:10px;align-items:center">
+                  <span>1080p 60fps</span>
+                  <span class="tag tag-accent" style="background:#0F766E;color:#FFFFFF">Encrypted Peer</span>
+                </div>
+              </div>
+
+              <div style="padding:12px;flex:1;overflow-y:auto;background:#0F172A">
+                <div class="codeblk" id="studentLiveBroadcastCode">
+                  <span class="cln" id="slbl0"><span class="ck">class</span> <span class="cf">LRUCache</span>:</span>
+                  <span class="cln" id="slbl1">    <span class="ck">def</span> <span class="cf">__init__</span>(self, capacity: int):</span>
+                  <span class="cln" id="slbl2">        self.cap = capacity</span>
+                  <span class="cln" id="slbl3">        self.cache = {}  <span class="cr"># Hash Map: key -> Node</span></span>
+                  <span class="cln" id="slbl4">        self.head, self.tail = Node(0, 0), Node(0, 0)</span>
+                  <span class="cln" id="slbl5">        self.head.next, self.tail.prev = self.tail, self.head</span>
+                </div>
+                <div style="margin-top:10px;background:#1E293B;padding:8px 12px;border-radius:var(--radius);font-size:11.5px;color:#CBD5E1">
+                  <strong style="color:#38BDF8">Instructor Live Audio/Step Note:</strong>
+                  <span id="studentLiveExplanationText">Sentinel nodes eliminate null pointer checks when splicing doubly linked nodes.</span>
+                </div>
+              </div>
+
+              <!-- Student Read-Only Lab Terminal -->
+              <div class="term-box" id="studentTermOutput">
+                <div class="term-line" style="color:#94A3B8">Connected to Lab Workstation: Terminal Feed (Read/Execute)</div>
+                <div class="term-line"><span class="term-prompt">student@cs301:~$</span> python3 lru_cache.py --test-concurrency</div>
+                <div class="term-line" style="color:#34D399;font-weight:600">>> ALL TEST ASSERTIONS PASSED (O(1) verified)</div>
+              </div>
+
+              <div class="meeting-controls-bar">
+                <div style="display:flex;gap:6px">
+                  <button class="btn btn-s" style="background:#1E293B;color:#FFFFFF;border-color:var(--slate-700)">Audio: Connected</button>
+                  <button class="btn btn-s" style="background:#1E293B;color:#FFFFFF;border-color:var(--slate-700)">Hand Raise: Off</button>
+                </div>
+                <button class="btn btn-r" onclick="toast('Disconnected from live stream.')">Leave Lab</button>
+              </div>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div class="card" style="flex:1">
+              <div class="card-hd"><div class="card-title">Live Lab Attendees</div><span class="tag tag-accent">5 Connected</span></div>
+              <div class="card-body" style="padding:0">
+                <div class="attendee-item"><strong>Sarah J. (Host)</strong><span class="tag tag-accent">Broadcasting</span></div>
+                <div class="attendee-item"><span>Alex Rivera (You)</span><span class="tag tag-default">Connected</span></div>
+                <div class="attendee-item"><span>Casey Smith</span><span class="tag tag-default">Connected</span></div>
+              </div>
+            </div>
+
+            <div class="card" style="flex:1;display:flex;flex-direction:column">
+              <div class="card-hd"><div class="card-title">Class Q&amp;A</div></div>
+              <div class="card-body" style="padding:6px;display:flex;flex-direction:column;flex:1">
+                <div class="chat-msgs" id="studentChatMsgsBox">
+                  <div class="chat-msg"><strong>Sarah J. (Faculty):</strong> Welcome everyone to the LRU Cache live implementation session!</div>
+                  <div class="chat-msg"><strong>Alex:</strong> I see the terminal output running line 4.</div>
+                </div>
+                <div style="display:flex;gap:4px;margin-top:6px">
+                  <input class="form-input" id="studentMeetingChatInput" placeholder="Ask question..." onkeydown="if(event.key==='Enter')sendStudentMeetingChat()"/>
+                  <button class="btn btn-p" onclick="sendStudentMeetingChat()">Send</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STUDENT VIEW: FACULTY NOTES -->
+      <div class="view-pane" id="sv-myNotes">
+        <div class="ptop">
+          <div>
+            <div class="ptitle">Faculty-Approved Notes and Cheatsheets</div>
+            <div style="font-size:12px;color:var(--slate-500)">Curated revision notes, technical syntax rules, and architectural cheatsheets verified by faculty</div>
+          </div>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-s" onclick="filterStudentNotes('all')">All Tracks</button>
+            <button class="btn btn-s" onclick="filterStudentNotes('python')">Python</button>
+            <button class="btn btn-s" onclick="filterStudentNotes('java')">Java</button>
+            <button class="btn btn-s" onclick="filterStudentNotes('cprog')">C Programming</button>
+          </div>
+        </div>
+
+        <div id="studentPublishedNotesContainer" style="display:flex;flex-direction:column;gap:12px"></div>
+      </div>
+
+      <!-- STUDENT VIEW: ASSIGNMENTS & INBUILT WORD DOC / FILE UPLOAD -->
+      <div class="view-pane" id="sv-myAssign">
+        <div class="ptop">
+          <div>
+            <div class="ptitle">Assignments Workspace: Online Submission and Offline Tasks</div>
+            <div style="font-size:12px;color:var(--slate-500)">Complete and format solutions in the inbuilt Word Doc editor or upload source files from your workstation or mobile device</div>
+          </div>
+          <span class="tag tag-accent" id="activeAssignModeBadge">Online Mode</span>
+        </div>
+
+        <div class="grid-2">
+          <!-- Assignment Details -->
+          <div class="card">
+            <div class="card-hd"><div class="card-title">Select Course Task</div></div>
+            <div class="card-body">
+              <div class="form-group">
+                <label class="form-label">Active Assignment</label>
+                <select class="form-input" id="studentAssignSelect" onchange="loadStudentAssignmentDetails(this.value)"></select>
+              </div>
+
+              <div style="background:var(--bg-subtle);padding:12px;border-radius:var(--radius);margin-bottom:12px;border:1px solid var(--border-light)">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+                  <span style="font-size:13px;font-weight:700" id="detAssignTitle">Implement Custom LRU Cache in Python</span>
+                  <span class="tag tag-default" id="detAssignPts">100 Points</span>
+                </div>
+                <div style="font-size:11.5px;color:var(--slate-500);margin-bottom:8px">Due: Tomorrow at 23:59 UTC | Subject Track: <strong id="detAssignTrack">Python CS-301</strong></div>
+                <div style="font-size:12px;line-height:1.6;color:var(--slate-800)" id="detAssignPrompt">
+                  Implement an LRU Cache with O(1) get() and put() operations using a Doubly Linked List and Hash Map.
+                </div>
+                <div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--border);font-size:11.5px;color:var(--slate-700)">
+                  <strong>Grading Rubric Breakdown:</strong>
+                  <div id="detAssignRubric" style="white-space:pre-line;margin-top:4px">1. Big-O Complexity verification (40 pts)
+2. Eviction boundary handling (30 pts)
+3. Test suite coverage (30 pts)</div>
+                </div>
+              </div>
+
+              <div id="offlineNoticeBox" style="display:none;background:var(--amber-light);border:1px solid #FCD34D;border-radius:var(--radius);padding:10px">
+                <div style="font-size:12px;font-weight:700;color:#92400E">Offline Physical Lab Submission Notice</div>
+                <div style="font-size:11.5px;color:#78350F;margin-top:3px">
+                  This task requires physical attendance in Laboratory CS-204. Bring your handwritten diagram and demonstrate clean Valgrind memory execution on the lab terminal.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Student Solution Workspace (Inbuilt Word Doc + Upload) -->
+          <div class="card">
+            <div class="card-hd">
+              <div class="card-title">Solution Submission Workspace</div>
+              <button class="btn btn-s" onclick="saveDraft()">Save Draft</button>
+            </div>
+            <div class="card-body">
+              <div class="form-label" style="display:flex;justify-content:space-between">
+                <span>Method 1: Draft in Inbuilt Word Doc Editor</span>
+                <span style="font-size:11px;color:var(--slate-500)" id="wordCount">0 words</span>
+              </div>
+              <div class="doc-toolbar">
+                <button class="doc-btn" onclick="formatDoc('bold')">B</button>
+                <button class="doc-btn" onclick="formatDoc('italic')">I</button>
+                <button class="doc-btn" onclick="formatDoc('formatBlock', '<h3>')">H3 Heading</button>
+                <button class="doc-btn" onclick="formatDoc('insertUnorderedList')">Bullet List</button>
+                <button class="doc-btn" onclick="insertCodeTemplate()">Code Block</button>
+                <button class="doc-btn" onclick="formatDoc('removeFormat')">Clear</button>
+              </div>
+              <div class="doc-editor" id="studentDocEditor" contenteditable="true" oninput="updateWordCount()">
+                <h3>Solution Overview:</h3>
+                <p>Document your algorithmic design, data structure selection, and complexity analysis here...</p>
+              </div>
+
+              <div style="margin-top:12px">
+                <div class="form-label">Method 2: Attach File from Computer or Phone</div>
+                <div class="dropzone" style="padding:10px" onclick="document.getElementById('studentFilePicker').click()">
+                  <div style="font-size:11.5px;font-weight:600;color:var(--slate-800)">Click to attach file (.py, .java, .c, .pdf, .docx, .zip)</div>
+                  <input type="file" id="studentFilePicker" style="display:none" onchange="handleStudentFileUpload(this)"/>
+                </div>
+                <div id="uploadedFileChip" style="display:none;background:var(--bg-subtle);border:1px solid var(--border);border-radius:var(--radius);padding:5px 8px;margin-top:6px;font-size:11.5px;align-items:center;justify-content:space-between">
+                  <span id="uploadedFileName">solution.py (24 KB)</span>
+                  <button class="btn btn-r" style="padding:2px 6px;font-size:10px" onclick="removeUploadedFile()">Remove</button>
+                </div>
+              </div>
+
+              <div style="margin-top:14px;display:flex;justify-content:space-between;align-items:center">
+                <span id="submissionStatusText" style="font-size:11.5px;color:var(--slate-500)">Draft not yet submitted</span>
+                <button class="btn btn-p" onclick="submitFinalAssignment()">Submit Final Assignment</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STUDENT VIEW: COURSE DOWNLOADS -->
+      <div class="view-pane" id="sv-classResources">
+        <div class="ptop">
+          <div>
+            <div class="ptitle">Course Downloads and Technical References</div>
+            <div style="font-size:12px;color:var(--slate-500)">Synchronized course materials published by faculty</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-hd"><div class="card-title">Available Course Files</div></div>
+          <div class="card-body" style="padding:0">
+            <table>
+              <thead><tr><th>Document Name</th><th>Track</th><th>Format</th><th>Size</th><th>Action</th></tr></thead>
+              <tbody id="studentResourcesTbody">
+                <tr><td><strong>python_concurrency_deepdive.pdf</strong></td><td>Python</td><td><span class="tag tag-default">PDF</span></td><td>2.4 MB</td><td><button class="btn btn-s" onclick="toast('Downloading python_concurrency_deepdive.pdf')">Download</button></td></tr>
+                <tr><td><strong>jvm_memory_architecture_spec.pdf</strong></td><td>Java</td><td><span class="tag tag-default">PDF</span></td><td>3.8 MB</td><td><button class="btn btn-s" onclick="toast('Downloading jvm_memory_architecture_spec.pdf')">Download</button></td></tr>
+                <tr><td><strong>c_dynamic_memory_allocator.c</strong></td><td>C</td><td><span class="tag tag-default">Source</span></td><td>145 KB</td><td><button class="btn btn-s" onclick="toast('Downloading c_dynamic_memory_allocator.c')">Download</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- STUDENT VIEW: PRIVACY POLICY (MOVED DOWN) -->
+      <div class="view-pane" id="sv-sPrivacy">
+        <div class="ptop"><div class="ptitle">Data Privacy and FERPA Compliance</div></div>
+        <div class="card">
+          <div class="card-body">
+            <div class="legal-section">
+              <div class="legal-h2">Student Data Privacy and Zero-PII Processing</div>
+              <div class="legal-p">Your code execution, step-tracing, and assessment responses run locally in your browser sandbox. Your personal identifiers are never transmitted to external computational services, in compliance with FERPA (34 CFR Part 99) and GDPR regulations.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STUDENT VIEW: TERMS (MOVED DOWN) -->
+      <div class="view-pane" id="sv-sTerms">
+        <div class="ptop"><div class="ptitle">Academic Terms and Intellectual Property</div></div>
+        <div class="card">
+          <div class="card-body">
+            <div class="legal-section">
+              <div class="legal-h2">Intellectual Property Rights of Students</div>
+              <div class="legal-p">You retain complete copyright and ownership over all original algorithms and code submitted through this portal. Submissions are retained strictly for institutional evaluation.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW: STUDENT COURSE HUB -->
+      <div class="view-pane" id="sv-sCourseView">
+        <div class="course-banner">
+          <div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <span class="tag tag-accent" id="scBadge">Python 3.12+</span>
+              <span style="font-size:11px;color:var(--slate-500);font-family:'JetBrains Mono',monospace" id="scCode">CS-301</span>
+              <span class="tag tag-default">Enrolled</span>
+            </div>
+            <div class="ptitle" style="margin-top:4px" id="scTitle">Python CS-301: Advanced Systems, Data Structures &amp; Concurrency</div>
+            <div style="font-size:12px;color:var(--slate-600);margin-top:2px" id="scDesc">In-depth study of CPython internals, Global Interpreter Lock (GIL), asynchronous event loops, and high-performance algorithms.</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+            <div style="font-size:11px;color:var(--slate-500)">Your Current Mastery</div>
+            <div style="font-size:20px;font-weight:700;color:var(--green)" id="scMyMastery">96%</div>
+            <div style="display:flex;gap:4px">
+              <button class="btn btn-s" style="padding:3px 8px;font-size:11px" onclick="openStudentCourse('py')">Python</button>
+              <button class="btn btn-s" style="padding:3px 8px;font-size:11px" onclick="openStudentCourse('java')">Java</button>
+              <button class="btn btn-s" style="padding:3px 8px;font-size:11px" onclick="openStudentCourse('cprog')">C Prog</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="border-radius:var(--radius)">
+          <div class="course-tabs-bar">
+            <div class="course-tab-item active" id="sctab-btn-modules" onclick="switchStudentCourseSubTab('modules')">Curriculum &amp; Chapters</div>
+            <div class="course-tab-item" id="sctab-btn-sandbox" onclick="switchStudentCourseSubTab('sandbox')">Interactive Code Playground</div>
+            <div class="course-tab-item" id="sctab-btn-cheatsheet" onclick="switchStudentCourseSubTab('cheatsheet')">Approved Course Cheatsheets</div>
+            <div class="course-tab-item" id="sctab-btn-assign" onclick="switchStudentCourseSubTab('assign')">Assignments &amp; Labs</div>
+          </div>
+
+          <!-- Student Subtab 1: Modules -->
+          <div class="card-body" id="sctab-modules">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+              <div>
+                <div style="font-size:13px;font-weight:700">Course Learning Modules &amp; Prerequisites</div>
+                <div style="font-size:11.5px;color:var(--slate-500)">Work through units and test code in sandbox</div>
+              </div>
+              <button class="btn btn-p" onclick="launchActiveCourseLesson()">Open Active Code Tracer</button>
+            </div>
+            <div id="scModulesContainer" style="display:flex;flex-direction:column;gap:10px"></div>
+          </div>
+
+          <!-- Student Subtab 2: Sandbox -->
+          <div class="card-body" id="sctab-sandbox" style="display:none">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+              <span style="font-size:12.5px;font-weight:700">In-Browser Code Execution &amp; Memory Sandbox</span>
+              <div style="display:flex;gap:6px">
+                <button class="btn btn-p" onclick="runStudentCourseCode()">Run &amp; Test Code</button>
+                <button class="btn btn-s" onclick="resetStudentCourseCode()">Reset Code</button>
+              </div>
+            </div>
+            <textarea class="course-code-editor" id="studentCourseEditor" spellcheck="false"></textarea>
+            <div style="margin-top:10px">
+              <div style="font-size:11px;font-weight:700;color:var(--slate-600);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.05em">Sandbox Terminal &amp; Assertion Results</div>
+              <div class="course-code-terminal" id="studentCourseTerminal">Click "Run &amp; Test Code" to execute in local browser sandbox...</div>
+            </div>
+          </div>
+
+          <!-- Student Subtab 3: Cheatsheets -->
+          <div class="card-body" id="sctab-cheatsheet" style="display:none">
+            <div style="font-size:13px;font-weight:700;margin-bottom:2px" id="scSheetTitle">Verified Course Cheatsheet</div>
+            <div style="font-size:11.5px;color:var(--slate-500);margin-bottom:12px">Authoritative notes verified and approved by Prof. Sarah J.</div>
+            <div class="output-box" id="scSheetBody" style="display:block;white-space:pre-wrap;font-family:'JetBrains Mono',monospace;font-size:12px;background:#F8FAFC"></div>
+          </div>
+
+          <!-- Student Subtab 4: Assignments -->
+          <div class="card-body" id="sctab-assign" style="display:none">
+            <div style="font-size:13px;font-weight:700;margin-bottom:4px">Course Lab Assignments</div>
+            <div style="font-size:11.5px;color:var(--slate-500);margin-bottom:12px">Complete tasks in the built-in Word Doc editor or upload attachments</div>
+            <div id="scAssignmentsContainer" style="display:flex;flex-direction:column;gap:8px"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ════════ GLOBAL FOOTER WITH POLICY LINKS ════════ -->
+<footer class="app-footer">
+  <div>portal.learnai.edu: Institutional Academic System</div>
+  <div class="footer-links">
+    <a class="footer-link" onclick="openPolicyStandalone('privacy')">Privacy Policy</a>
+    <span style="color:#CBD5E1">|</span>
+    <a class="footer-link" onclick="openPolicyStandalone('terms')">Terms and Conditions</a>
+    <span style="color:#CBD5E1">|</span>
+    <span>Host: TLS 1.3 Certified</span>
+  </div>
+</footer>
+
+<div id="toast"></div>
+
+<!-- ══════════════════════════════════════
+     SECURITY-HARDENED CONTROLLER SCRIPT (IIFE SCOPED)
+══════════════════════════════════════ -->
+<script>
+// Wrap inside an IIFE to prevent leaking USERS, passwords, and sensitive variables to window console
+(function(){
+  "use strict";
+
+  // SHA-256 HASHES FOR PASSWORDS (Zero plaintext passwords in memory or DOM)
+  // 'teach123' -> 63cb9c6fa2d65784658539a93ad47f2274a02ddff344537beb97bd399938ad22
+  // 'student123' -> 703b0a3d6ad75b649a28adde7d83c6251da457549263bc7ff45ec709b0a8448b
+  const CREDENTIAL_HASHES = Object.freeze({
+    'T-001': { hash: '63cb9c6fa2d65784658539a93ad47f2274a02ddff344537beb97bd399938ad22', role:'teacher', name:'Sarah J.' },
+    'S-001': { hash: '703b0a3d6ad75b649a28adde7d83c6251da457549263bc7ff45ec709b0a8448b', role:'student', name:'Alex Rivera' },
+    'S-004': { hash: '703b0a3d6ad75b649a28adde7d83c6251da457549263bc7ff45ec709b0a8448b', role:'student', name:'Casey Smith' },
+    'S-012': { hash: '703b0a3d6ad75b649a28adde7d83c6251da457549263bc7ff45ec709b0a8448b', role:'student', name:'Emery Kumar' }
+  });
+
+  // Cryptographic SHA-256 function
+  async function computeSHA256(text){
+    const msgBuffer = new TextEncoder().encode(text);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+
+  // Sanitization helper (Anti-XSS)
+  function escapeHTML(str){
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  // Session state protected within scope
+  let activeRole = 'teacher';
+  let currentUser = null;
+  let isScreenSharing = true;
+  let isMicOn = true;
+  let isCamOn = true;
+  let liveStepIdx = 0;
+
+  const LIVE_STEPS = [
+    { line: 4, codeId: 'lbl4', scodeId: 'slbl4', text: 'Line 4-5: Allocates sentinel head and tail nodes. Dummy sentinels guarantee node.prev and node.next are always valid.' },
+    { line: 6, codeId: 'lbl6', scodeId: 'slbl5', text: 'Line 6-8: get(key) performs O(1) hash table lookup. If key exists, node reference is retrieved in constant time.' },
+    { line: 9, codeId: 'lbl9', scodeId: 'slbl5', text: 'Line 9: Node is spliced from current position and inserted at head. This marks it as Most Recently Used (MRU).' },
+    { line: 11, codeId: 'lbl11', scodeId: 'slbl5', text: 'Line 11: Return node value. Overall time complexity remains strictly O(1) without memory leaks.' }
+  ];
+
+  // Expose necessary handlers via securely bound global interface
+  window.switchRole = function(role){
+    activeRole = role;
+    document.getElementById('tabTeacher').style.background = role === 'teacher' ? '#FFFFFF' : 'transparent';
+    document.getElementById('tabTeacher').style.fontWeight = role === 'teacher' ? '600' : '500';
+    document.getElementById('tabStudent').style.background = role === 'student' ? '#FFFFFF' : 'transparent';
+    document.getElementById('tabStudent').style.fontWeight = role === 'student' ? '600' : '500';
+
+    document.getElementById('hintTeacherRow').style.display = role === 'teacher' ? 'block' : 'none';
+    document.getElementById('hintStudentRow').style.display = role === 'student' ? 'block' : 'none';
+
+    document.getElementById('uid').value = role === 'teacher' ? 'T-001' : 'S-001';
+    document.getElementById('pwd').value = role === 'teacher' ? 'teach123' : 'student123';
+    document.getElementById('errMsg').textContent = '';
+  };
+
+  window.doLogin = async function(){
+    const uid = document.getElementById('uid').value.trim().toUpperCase();
+    const pwd = document.getElementById('pwd').value;
+    const err = document.getElementById('errMsg');
+    err.textContent = '';
+
+    const entry = CREDENTIAL_HASHES[uid];
+    if(!entry || entry.role !== activeRole){
+      err.textContent = `Identifier not found for ${activeRole === 'teacher' ? 'Faculty' : 'Student'} profile.`;
+      return;
+    }
+
+    const inputHash = await computeSHA256(pwd);
+    if(inputHash !== entry.hash){
+      err.textContent = 'Invalid authentication key. Check demo credentials.';
+      return;
+    }
+
+    // Generate secure session token
+    const tokenBytes = new Uint8Array(16);
+    crypto.getRandomValues(tokenBytes);
+    const sessionToken = Array.from(tokenBytes, b => b.toString(16).padStart(2, '0')).join('');
+
+    currentUser = { id: uid, role: entry.role, name: entry.name, session: sessionToken };
+    enterPortal();
+  };
+
+  function enterPortal(){
+    document.getElementById('loginPage').classList.remove('active');
+    if(currentUser.role === 'teacher'){
+      document.getElementById('teacherPage').classList.add('active');
+      document.getElementById('studentPage').classList.remove('active');
+      window.selectTeacherView('aiDesk');
+      if(typeof window.loadPresetDataset === 'function') window.loadPresetDataset('python');
+      if(typeof window.renderTeacherAssignmentsTable === 'function') window.renderTeacherAssignmentsTable();
+      toast(`Authenticated as ${currentUser.name}. Faculty session active.`);
+    } else {
+      document.getElementById('studentPage').classList.add('active');
+      document.getElementById('teacherPage').classList.remove('active');
+      document.getElementById('studentName').textContent = currentUser.name;
+      document.getElementById('studentIdLabel').textContent = `${currentUser.id}: CS-301`;
+      window.selectStudentView('visualizer');
+      if(typeof window.renderStudentPublishedNotes === 'function') window.renderStudentPublishedNotes();
+      if(typeof window.populateStudentAssignments === 'function') window.populateStudentAssignments();
+      toast(`Authenticated as ${currentUser.name}. Student session active.`);
+    }
+  }
+
+  window.doLogout = function(){
+    currentUser = null;
+    document.getElementById('teacherPage').classList.remove('active');
+    document.getElementById('studentPage').classList.remove('active');
+    document.getElementById('loginPage').classList.add('active');
+    toast('Session terminated securely.');
+  };
+
+  // ── COURSES DATA & CURRICULUM ARCHITECTURE ──
+  const COURSES_DATA = {
+    py: {
+      code: 'CS-301',
+      title: 'Python CS-301: Advanced Systems, Data Structures & Concurrency',
+      badge: 'Python 3.12+',
+      status: 'Active Cohort',
+      desc: 'In-depth study of CPython internals, Global Interpreter Lock (GIL), asynchronous event loops (asyncio), memory management, and high-performance algorithms.',
+      benchmark: 'Cohort Benchmark: 88%',
+      studentMastery: '96%',
+      modules: [
+        { num: 1, title: 'CPython Architecture & Memory Layout', time: 'Week 1-2', status: 'Completed', desc: 'Object structures (PyObject), reference counting mechanics, and generational cyclic garbage collection (Gen 0/1/2).' },
+        { num: 2, title: 'High-Performance Data Structures', time: 'Week 3-4', status: 'Active Lab', desc: 'O(1) LRU Cache implementation with sentinel doubly-linked nodes and dictionary key mapping.' },
+        { num: 3, title: 'Concurrency Models: GIL vs Multiprocessing', time: 'Week 5-7', status: 'Upcoming', desc: 'Comparative execution profiles: ProcessPoolExecutor, ThreadPoolExecutor, and asyncio event loops.' },
+        { num: 4, title: 'Advanced Generators & Memory Efficiency', time: 'Week 8-10', status: 'Upcoming', desc: 'Memory footprints of generators vs lists, itertools pipelines, and custom iterators.' },
+        { num: 5, title: 'Systems Profiling & Optimization', time: 'Week 11-14', status: 'Upcoming', desc: 'cProfile, memory_profiler, C-extensions, and Cython compilation bottlenecks.' }
+      ],
+      sampleCode: `class LRUCache:\n    def __init__(self, capacity: int):\n        self.cap = capacity\n        self.cache = {}\n        # Sentinel head and tail nodes\n        self.head, self.tail = Node(0, 0), Node(0, 0)\n        self.head.next, self.tail.prev = self.tail, self.head\n\n    def get(self, key: int) -> int:\n        if key in self.cache:\n            node = self.cache[key]\n            self._remove(node)\n            self._add(node)\n            return node.val\n        return -1\n\n    def put(self, key: int, value: int) -> None:\n        if key in self.cache:\n            self._remove(self.cache[key])\n        node = Node(key, value)\n        self._add(node)\n        self.cache[key] = node\n        if len(self.cache) > self.cap:\n            lru = self.tail.prev\n            self._remove(lru)\n            del self.cache[lru.key]\n\n# Instantiate and run unit verification\ncache = LRUCache(2)\ncache.put(1, 100)\ncache.put(2, 200)\nprint("Cache Lookup key 1:", cache.get(1))\nprint("Memory Profile: Sentinel double-linked pointers valid.")`,
+      sampleOutput: `>> Python 3.12.2 (CPython Interpreter Runtime)\n>> Initialized LRUCache with bounded capacity=2\n>> Inserted Node(1, 100) -> Placed at MRU Head\n>> Inserted Node(2, 200) -> Placed at MRU Head\n>> Cache Lookup key 1: 100\n>> Memory Profile: Sentinel double-linked pointers valid.\n>> Time Complexity: O(1) constant time verified | Zero GC cycle leaks detected.`,
+      cheatsheet: `# PYTHON CS-301 FACULTY CHEATSHEET\n1. GIL & CONCURRENCY:\n   - Python threads share a single GIL; suitable for I/O bound tasks.\n   - CPU-bound tasks require multiprocessing (ProcessPoolExecutor) to bypass GIL.\n   - asyncio event loops use cooperative multitasking without thread context-switching overhead.\n\n2. CPYTHON MEMORY MODEL:\n   - Primary GC: Reference Counting. When PyObject->ob_refcnt drops to 0, memory is freed immediately.\n   - Secondary GC: Generational Garbage Collector collects cyclic isolates across Gen 0, 1, and 2.\n\n3. LRU CACHE O(1) MECHANICS:\n   - Doubly Linked List maintains access ordering (MRU head, LRU tail).\n   - Python dict maps key -> Node pointer for instant constant-time lookup.`,
+      assignments: [
+        { id: 'T-PY-01', title: 'Assignment 1: Thread-Safe Async Pipeline', due: 'In 3 Days', mode: 'Online Word Doc / Code Attachment', weight: '20% of Grade', desc: 'Build an asyncio worker pool handling 10,000 asynchronous telemetry packets.' },
+        { id: 'T-PY-02', title: 'Lab 2: Bounded LRU Cache Implementation', due: 'In 7 Days', mode: 'Online Inbuilt Editor', weight: '25% of Grade', desc: 'Implement O(1) get/put with sentinel head/tail pointers and handle eviction.' }
+      ],
+      telemetry: [
+        { student: 'Alex Rivera (S-001)', m1: '96%', m2: '94%', m3: '90%', m4: '92%', status: 'Mastered' },
+        { student: 'Casey Smith (S-004)', m1: '68%', m2: '45%', m3: '38%', m4: '40%', status: 'Intervention' },
+        { student: 'Emery Kumar (S-012)', m1: '85%', m2: '80%', m3: '78%', m4: '82%', status: 'On Track' },
+        { student: 'Jordan Miller (S-015)', m1: '80%', m2: '74%', m3: '55%', m4: '70%', status: 'Developing' }
+      ]
+    },
+    java: {
+      code: 'CS-302',
+      title: 'Java CS-302: JVM Internals, Concurrency & Enterprise Architecture',
+      badge: 'Java 21 LTS',
+      status: 'Active Cohort',
+      desc: 'Comprehensive analysis of JVM memory anatomy (Heap, Metaspace, Thread Stacks), JIT compilation (C1/C2 tiers), memory visibility under JMM, and lock-free concurrency.',
+      benchmark: 'Cohort Benchmark: 82%',
+      studentMastery: '88%',
+      modules: [
+        { num: 1, title: 'JVM Memory Anatomy & ClassLoading', time: 'Week 1-2', status: 'Completed', desc: 'Bootstrap, Extension, Application classloaders, Metaspace vs Permanent Gen, and bytecode verification.' },
+        { num: 2, title: 'Java Memory Model & Concurrency', time: 'Week 3-5', status: 'Active Lab', desc: 'Volatile memory semantics, happens-before ordering, synchronized vs ReentrantLock, and condition queues.' },
+        { num: 3, title: 'Garbage Collection Algorithms', time: 'Week 6-8', status: 'Upcoming', desc: 'Generational hypothesis, ZGC, Shenandoah, G1 GC pause time targets, and allocation rates.' },
+        { num: 4, title: 'Lock-Free Collections & Ring Buffers', time: 'Week 9-11', status: 'Upcoming', desc: 'AtomicReference, Compare-And-Swap (CAS), ConcurrentLinkedQueue, and LMAX Disruptor patterns.' },
+        { num: 5, title: 'Virtual Threads & Project Loom', time: 'Week 12-14', status: 'Upcoming', desc: 'Carrier threads vs virtual thread scheduling, non-blocking I/O throughput benchmarks.' }
+      ],
+      sampleCode: `public class RingBuffer<T> {\n    private final Object[] buffer;\n    private final int capacity;\n    private volatile long writeSeq = 0;\n    private volatile long readSeq = 0;\n\n    public RingBuffer(int capacity) {\n        this.capacity = capacity;\n        this.buffer = new Object[capacity];\n    }\n\n    public boolean offer(T item) {\n        if (writeSeq - readSeq >= capacity) {\n            return false; // Buffer full: zero-allocation backpressure\n        }\n        buffer[(int)(writeSeq % capacity)] = item;\n        writeSeq++;\n        return true;\n    }\n\n    @SuppressWarnings("unchecked")\n    public T poll() {\n        if (readSeq >= writeSeq) return null; // Empty\n        T item = (T) buffer[(int)(readSeq % capacity)];\n        readSeq++;\n        return item;\n    }\n}\n\n// Driver test runner\nRingBuffer<String> rb = new RingBuffer<>(4);\nrb.offer("Packet_001");\nrb.offer("Packet_002");\nSystem.out.println("Polled packet: " + rb.poll());`,
+      sampleOutput: `>> OpenJDK 64-Bit Server VM (build 21.0.2+13-LTS)\n>> JIT Tier 4 C2 Compiler Enabled\n>> Inlining method RingBuffer.offer(T) [18 bytes bytecode -> native x86_64]\n>> Polled packet: Packet_001\n>> Microbenchmark: 38.4M operations/sec | Zero garbage collection allocations.`,
+      cheatsheet: `# JAVA CS-302 JVM ARCHITECTURE CHEATSHEET\n1. JVM RUNTIME DATA REGIONS:\n   - Heap: Eden, Survivor (S0/S1), Tenured (Old Gen). Shared across threads.\n   - Metaspace: Native off-heap memory storing class metadata, method bytecode, runtime constant pool.\n   - JVM Stack: Per-thread stack frames storing local variables (primitive values and object references).\n\n2. JAVA MEMORY MODEL (JMM):\n   - volatile: Guarantees visibility across CPU caches and prevents instruction reordering (memory barriers).\n   - synchronized: Intrinsic monitor locks providing mutual exclusion and cache flush.\n   - ReentrantLock: Fairness flags, tryLock(), and multiple Condition wait-queues.`,
+      assignments: [
+        { id: 'T-JV-01', title: 'Lab 1: Thread-Safe Lock-Free Ring Buffer', due: 'In 4 Days', mode: 'Online Inbuilt Word Doc / Code Upload', weight: '20% of Grade', desc: 'Implement atomic CAS ring buffer with zero object allocation during poll/offer cycles.' },
+        { id: 'T-JV-02', title: 'Lab 2: Metaspace & Dynamic ClassLoader Profiler', due: 'In 9 Days', mode: 'Offline Physical Lab CS-204', weight: '20% of Grade', desc: 'Profile class loading limits and monitor memory exhaustion under custom ClassLoaders.' }
+      ],
+      telemetry: [
+        { student: 'Alex Rivera (S-001)', m1: '92%', m2: '88%', m3: '85%', m4: '88%', status: 'Mastered' },
+        { student: 'Casey Smith (S-004)', m1: '64%', m2: '36%', m3: '32%', m4: '40%', status: 'Intervention' },
+        { student: 'Emery Kumar (S-012)', m1: '82%', m2: '74%', m3: '70%', m4: '75%', status: 'On Track' },
+        { student: 'Jordan Miller (S-015)', m1: '78%', m2: '64%', m3: '44%', m4: '62%', status: 'Developing' }
+      ]
+    },
+    cprog: {
+      code: 'CS-201',
+      title: 'C Systems Programming CS-201: Pointers, Memory & OS Interfaces',
+      badge: 'C23 / POSIX',
+      status: 'Active Cohort',
+      desc: 'Rigorous systems programming: virtual memory, pointer arithmetic, dynamic heap allocators, cache alignment, POSIX system calls, and Valgrind diagnostic profiling.',
+      benchmark: 'Cohort Benchmark: 79%',
+      studentMastery: '90%',
+      modules: [
+        { num: 1, title: 'Pointer Arithmetic & Memory Layout', time: 'Week 1-3', status: 'Completed', desc: 'Stack frames, pointer-to-pointer (**pp), array decaying, and struct byte padding.' },
+        { num: 2, title: 'Dynamic Memory Management & Allocators', time: 'Week 4-6', status: 'Active Lab', desc: 'malloc, calloc, realloc, sbrk, mmap, and custom free-list memory allocator implementations.' },
+        { num: 3, title: 'POSIX File Descriptors & System Calls', time: 'Week 7-9', status: 'Upcoming', desc: 'open, read, write, select/epoll, non-blocking I/O multiplexing, and pipe IPC.' },
+        { num: 4, title: 'Process Control & Signals', time: 'Week 10-12', status: 'Upcoming', desc: 'fork, execve, waitpid, signal handlers, reentrant functions, and zombie prevention.' },
+        { num: 5, title: 'Valgrind Profiling & Memory Leak Mitigation', time: 'Week 13-14', status: 'Upcoming', desc: 'Memcheck diagnostic analysis, addressing undefined behavior, buffer overflows, and double free bugs.' }
+      ],
+      sampleCode: `#include <stdio.h>\n#include <stdlib.h>\n#include <stdint.h>\n\ntypedef struct MemoryBlock {\n    size_t size;\n    uint8_t is_free;\n    struct MemoryBlock *next;\n} MemoryBlock;\n\nMemoryBlock* allocate_block(size_t size) {\n    MemoryBlock *b = (MemoryBlock*)malloc(sizeof(MemoryBlock) + size);\n    if (!b) return NULL;\n    b->size = size;\n    b->is_free = 0;\n    b->next = NULL;\n    return b;\n}\n\nint main() {\n    printf(">> Initializing Custom Free-List Memory Allocator...\\n");\n    MemoryBlock *b1 = allocate_block(256);\n    printf(">> Block allocated at %p (Payload: %zu bytes)\\n", (void*)b1, b1->size);\n    free(b1);\n    printf(">> Block freed cleanly. Memory leak verification passed.\\n");\n    return 0;\n}`,
+      sampleOutput: `>> gcc -Wall -Wextra -Werror -O2 -g allocator.c -o allocator_test\n>> valgrind --leak-check=full --show-leak-kinds=all ./allocator_test\n>> ==14291== Memcheck, a memory error detector\n>> >> Initializing Custom Free-List Memory Allocator...\n>> >> Block allocated at 0x5608c1a932a0 (Payload: 256 bytes)\n>> >> Block freed cleanly. Memory leak verification passed.\n>> ==14291== HEAP SUMMARY:\n>> ==14291==     in use at exit: 0 bytes in 0 blocks\n>> ==14291==   total heap usage: 1 allocs, 1 frees, 280 bytes allocated\n>> ==14291== All heap blocks were freed -- no leaks are possible`,
+      cheatsheet: `# C SYSTEMS PROGRAMMING CS-201 CHEATSHEET\n1. POINTER ARITHMETIC & STRUCT ALIGNMENT:\n   - Pointer addition (p + 1) advances by sizeof(*p) bytes.\n   - Struct padding: Struct members align to multiples of their natural size (e.g. 8 bytes for 64-bit pointers).\n   - Dereferencing NULL or freed memory results in SIGSEGV (Segmentation Fault).\n\n2. HEAP ALLOCATOR CONTRACTS:\n   - malloc(size): Allocates uninitialized heap bytes.\n   - calloc(num, size): Allocates zero-initialized heap bytes.\n   - free(ptr): Releases allocation back to free list. Always set ptr = NULL after free.\n\n3. VALGRIND DIAGNOSTICS:\n   - "Definitely lost": Memory leak with no remaining pointers.\n   - "Invalid read/write of size N": Heap buffer overflow or use-after-free.`,
+      assignments: [
+        { id: 'T-C-01', title: 'Lab 1: Custom Explicit Free-List Allocator', due: 'In 5 Days', mode: 'Online Word Doc / .c File Upload', weight: '25% of Grade', desc: 'Implement malloc and free using first-fit segregated free lists with coalesce optimization.' },
+        { id: 'T-C-02', title: 'Lab 2: POSIX Multi-Process Pipeline', due: 'In 8 Days', mode: 'Offline Physical Lab CS-204', weight: '20% of Grade', desc: 'Build IPC pipeline using fork(), pipe(), and dup2() with zombie process reaping.' }
+      ],
+      telemetry: [
+        { student: 'Alex Rivera (S-001)', m1: '90%', m2: '92%', m3: '88%', m4: '90%', status: 'Mastered' },
+        { student: 'Casey Smith (S-004)', m1: '52%', m2: '36%', m3: '30%', m4: '42%', status: 'Intervention' },
+        { student: 'Emery Kumar (S-012)', m1: '80%', m2: '76%', m3: '72%', m4: '80%', status: 'On Track' },
+        { student: 'Jordan Miller (S-015)', m1: '72%', m2: '58%', m3: '48%', m4: '64%', status: 'Developing' }
+      ]
+    }
+  };
+
+  let activeCourseKey = 'py';
+
+  // ── VIEW SWITCHING ──
+  window.selectTeacherView = function(viewId){
+    if(!currentUser || currentUser.role !== 'teacher') return;
+    const items = ['aiDesk','liveMeeting','aiNotes','assignManager','uploadCenter','classOverview','needsAttention','auditLogs','privacyPolicy','termsConditions','courseView'];
+    items.forEach(id => {
+      const el = document.getElementById('tsi-' + id);
+      if(el) el.classList.toggle('active', id === viewId);
+    });
+
+    const navMap = { aiDesk:'tnav-dash', liveMeeting:'tnav-meeting', aiNotes:'tnav-notes', assignManager:'tnav-assign', uploadCenter:'tnav-upload', classOverview:'tnav-students', courseView:'tnav-courses' };
+    document.querySelectorAll('#teacherPage .nav-links .nav-link').forEach(n => n.classList.remove('active'));
+    if(navMap[viewId]) document.getElementById(navMap[viewId]).classList.add('active');
+
+    document.querySelectorAll('#teacherPage .view-pane').forEach(p => p.classList.remove('active'));
+    const target = document.getElementById('tv-' + viewId);
+    if(target) target.classList.add('active');
+
+    toast(`Navigation: ${viewId}`);
+  };
+
+  window.selectStudentView = function(viewId){
+    if(!currentUser || currentUser.role !== 'student') return;
+    const items = ['visualizer', 'sLiveMeeting', 'myNotes', 'myAssign', 'classResources', 'sPrivacy', 'sTerms', 'sCourseView'];
+    items.forEach(id => {
+      const el = document.getElementById('ssi-' + id);
+      if(el) el.classList.toggle('active', id === viewId);
+    });
+
+    const navMap = { visualizer:'snav-lab', sLiveMeeting:'snav-meeting', myNotes:'snav-notes', myAssign:'snav-assign', classResources:'snav-res', sCourseView:'snav-courses' };
+    document.querySelectorAll('#studentPage .nav-links .nav-link').forEach(n => n.classList.remove('active'));
+    if(navMap[viewId]) document.getElementById(navMap[viewId]).classList.add('active');
+
+    document.querySelectorAll('#studentPage .view-pane').forEach(p => p.classList.remove('active'));
+    const target = document.getElementById('sv-' + viewId);
+    if(target) target.classList.add('active');
+
+    if(viewId === 'myNotes') window.renderStudentPublishedNotes();
+    toast(`Navigation: ${viewId}`);
+  };
+
+  // ── COURSE CONTROLLERS ──
+  window.switchClassCohort = function(courseKey){
+    if(!COURSES_DATA[courseKey]) courseKey = 'py';
+    activeCourseKey = courseKey;
+
+    ['py','java','cprog'].forEach(k => {
+      const el = document.getElementById('tsi-c-' + k);
+      if(el) el.classList.toggle('active', k === courseKey);
+    });
+
+    const btnMap = { py: 'tcCourseBtnPy', java: 'tcCourseBtnJava', cprog: 'tcCourseBtnC' };
+    Object.keys(btnMap).forEach(k => {
+      const b = document.getElementById(btnMap[k]);
+      if(b){
+        b.className = (k === courseKey) ? 'btn btn-p' : 'btn btn-s';
+      }
+    });
+
+    const cData = COURSES_DATA[courseKey];
+    const tagEl = document.getElementById('activeClassTag');
+    if(tagEl) tagEl.textContent = `Faculty: ${cData.code}`;
+
+    window.selectTeacherView('courseView');
+    renderTeacherCourseView(courseKey);
+    toast(`Loaded Course: ${cData.code} - ${cData.title}`);
+  };
+
+  window.openStudentCourse = function(courseKey){
+    if(!COURSES_DATA[courseKey]) courseKey = 'py';
+    activeCourseKey = courseKey;
+
+    ['py','java','cprog'].forEach(k => {
+      const el = document.getElementById('ssi-c-' + k);
+      if(el) el.classList.toggle('active', k === courseKey);
+    });
+
+    const cData = COURSES_DATA[courseKey];
+    const sTag = document.getElementById('studentIdLabel');
+    if(sTag && currentUser) sTag.textContent = `${currentUser.id}: ${cData.code}`;
+
+    window.selectStudentView('sCourseView');
+    renderStudentCourseView(courseKey);
+    toast(`Enrolled Course: ${cData.code} - ${cData.title}`);
+  };
+
+  function renderTeacherCourseView(key){
+    const c = COURSES_DATA[key];
+    if(!c) return;
+    document.getElementById('tcBadge').textContent = c.badge;
+    document.getElementById('tcCode').textContent = c.code;
+    document.getElementById('tcTitle').textContent = c.title;
+    document.getElementById('tcDesc').textContent = c.desc;
+    document.getElementById('tcCohortBenchmark').textContent = c.benchmark;
+
+    const modBox = document.getElementById('tcModulesContainer');
+    modBox.innerHTML = c.modules.map(m => `
+      <div class="course-module-item">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span class="tag tag-accent" style="font-size:11px">Unit ${m.num}</span>
+            <strong style="font-size:12.5px">${escapeHTML(m.title)}</strong>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="font-size:11px;color:var(--slate-500)">${escapeHTML(m.time)}</span>
+            <span class="tag ${m.status === 'Completed' ? 'tag-accent' : m.status === 'Active Lab' ? 'tag-warn' : 'tag-default'}">${m.status}</span>
+          </div>
+        </div>
+        <div style="font-size:12px;color:var(--slate-600);margin-top:2px">${escapeHTML(m.desc)}</div>
+        <div style="margin-top:4px;display:flex;gap:6px">
+          <button class="btn btn-s" style="padding:3px 8px;font-size:11px" onclick="switchCourseSubTab('sandbox')">Open Sandbox</button>
+          <button class="btn btn-s" style="padding:3px 8px;font-size:11px" onclick="toast('Dispatched diagnostic test for Unit ${m.num} to cohort.')">Dispatch Unit Diagnostic</button>
+        </div>
+      </div>
+    `).join('');
+
+    document.getElementById('teacherCourseEditor').value = c.sampleCode;
+    document.getElementById('teacherCourseTerminal').textContent = `Compiler ready for ${c.badge}. Click "Compile & Execute" to evaluate.`;
+    document.getElementById('tcSheetTitle').textContent = `Faculty Verified Cheatsheet: ${c.code}`;
+    document.getElementById('tcSheetBody').textContent = c.cheatsheet;
+
+    const aBox = document.getElementById('tcAssignmentsContainer');
+    aBox.innerHTML = c.assignments.map(a => `
+      <div style="border:1px solid var(--border-light);padding:10px;border-radius:var(--radius);background:#FFFFFF">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <strong style="font-size:12px">${escapeHTML(a.title)}</strong>
+          <span class="tag tag-accent">${escapeHTML(a.weight)}</span>
+        </div>
+        <div style="font-size:11.5px;color:var(--slate-600);margin-top:4px">${escapeHTML(a.desc)}</div>
+        <div style="font-size:11px;color:var(--slate-500);margin-top:4px">Submission Mode: ${escapeHTML(a.mode)} | Due: ${escapeHTML(a.due)}</div>
+      </div>
+    `).join('');
+
+    const tBox = document.getElementById('tcTelemetryContainer');
+    tBox.innerHTML = `
+      <table>
+        <thead>
+          <tr><th>Student</th><th>Unit 1</th><th>Unit 2</th><th>Unit 3</th><th>Unit 4</th><th>Prereq Status</th></tr>
+        </thead>
+        <tbody>
+          ${c.telemetry.map(row => `
+            <tr>
+              <td><strong>${escapeHTML(row.student)}</strong></td>
+              <td><span class="sc-box" style="background:#DCFCE7;color:#166534">${row.m1}</span></td>
+              <td><span class="sc-box" style="background:#DCFCE7;color:#166534">${row.m2}</span></td>
+              <td><span class="sc-box" style="background:#FEF3C7;color:#92400E">${row.m3}</span></td>
+              <td><span class="sc-box" style="background:#DCFCE7;color:#166534">${row.m4}</span></td>
+              <td><span class="tag ${row.status === 'Mastered' ? 'tag-accent' : row.status === 'Intervention' ? 'tag-danger' : 'tag-default'}">${row.status}</span></td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `;
+  }
+
+  function renderStudentCourseView(key){
+    const c = COURSES_DATA[key];
+    if(!c) return;
+    document.getElementById('scBadge').textContent = c.badge;
+    document.getElementById('scCode').textContent = c.code;
+    document.getElementById('scTitle').textContent = c.title;
+    document.getElementById('scDesc').textContent = c.desc;
+    document.getElementById('scMyMastery').textContent = c.studentMastery;
+
+    const modBox = document.getElementById('scModulesContainer');
+    modBox.innerHTML = c.modules.map(m => `
+      <div class="course-module-item">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span class="tag tag-accent" style="font-size:11px">Unit ${m.num}</span>
+            <strong style="font-size:12.5px">${escapeHTML(m.title)}</strong>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="font-size:11px;color:var(--slate-500)">${escapeHTML(m.time)}</span>
+            <span class="tag ${m.status === 'Completed' ? 'tag-accent' : m.status === 'Active Lab' ? 'tag-warn' : 'tag-default'}">${m.status}</span>
+          </div>
+        </div>
+        <div style="font-size:12px;color:var(--slate-600);margin-top:2px">${escapeHTML(m.desc)}</div>
+        <div style="margin-top:4px;display:flex;gap:6px">
+          <button class="btn btn-p" style="padding:3px 8px;font-size:11px" onclick="launchActiveCourseLesson()">Step Through Code Lesson</button>
+          <button class="btn btn-s" style="padding:3px 8px;font-size:11px" onclick="switchStudentCourseSubTab('sandbox')">Practice in Sandbox</button>
+        </div>
+      </div>
+    `).join('');
+
+    document.getElementById('studentCourseEditor').value = c.sampleCode;
+    document.getElementById('studentCourseTerminal').textContent = `Local Sandbox ready for ${c.badge}. Click "Run & Test Code" to execute.`;
+    document.getElementById('scSheetTitle').textContent = `Approved Course Cheatsheet: ${c.code}`;
+    document.getElementById('scSheetBody').textContent = c.cheatsheet;
+
+    const aBox = document.getElementById('scAssignmentsContainer');
+    aBox.innerHTML = c.assignments.map(a => `
+      <div style="border:1px solid var(--border-light);padding:10px;border-radius:var(--radius);background:#FFFFFF;display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <strong style="font-size:12px">${escapeHTML(a.title)}</strong>
+          <div style="font-size:11.5px;color:var(--slate-600);margin-top:2px">${escapeHTML(a.desc)}</div>
+          <div style="font-size:11px;color:var(--slate-500);margin-top:2px">Due: ${escapeHTML(a.due)} | Weight: ${escapeHTML(a.weight)}</div>
+        </div>
+        <button class="btn btn-p" style="padding:5px 10px;font-size:11px;white-space:nowrap" onclick="loadTaskIntoDocEditor('${escapeHTML(a.title)}')">Open in Word Doc</button>
+      </div>
+    `).join('');
+  }
+
+  window.switchCourseSubTab = function(subTab){
+    const tabs = ['modules','sandbox','cheatsheet','assign','telemetry'];
+    tabs.forEach(t => {
+      const btn = document.getElementById('tctab-btn-' + t);
+      const pane = document.getElementById('tctab-' + t);
+      if(btn) btn.classList.toggle('active', t === subTab);
+      if(pane) pane.style.display = (t === subTab) ? 'block' : 'none';
+    });
+  };
+
+  window.switchStudentCourseSubTab = function(subTab){
+    const tabs = ['modules','sandbox','cheatsheet','assign'];
+    tabs.forEach(t => {
+      const btn = document.getElementById('sctab-btn-' + t);
+      const pane = document.getElementById('sctab-' + t);
+      if(btn) btn.classList.toggle('active', t === subTab);
+      if(pane) pane.style.display = (t === subTab) ? 'block' : 'none';
+    });
+  };
+
+  window.runTeacherCourseCode = function(){
+    const term = document.getElementById('teacherCourseTerminal');
+    const c = COURSES_DATA[activeCourseKey];
+    term.textContent = ">> Compiling with optimization flags -O2...\n" + c.sampleOutput;
+    toast('Code compiled and executed successfully.');
+  };
+
+  window.resetTeacherCourseCode = function(){
+    const c = COURSES_DATA[activeCourseKey];
+    document.getElementById('teacherCourseEditor').value = c.sampleCode;
+    document.getElementById('teacherCourseTerminal').textContent = 'Starter code reset. Click "Compile & Execute" to evaluate.';
+  };
+
+  window.runStudentCourseCode = function(){
+    const term = document.getElementById('studentCourseTerminal');
+    const c = COURSES_DATA[activeCourseKey];
+    term.textContent = ">> Launching browser WebAssembly/JS sandbox...\n" + c.sampleOutput;
+    toast('Code executed cleanly in local sandbox.');
+  };
+
+  window.resetStudentCourseCode = function(){
+    const c = COURSES_DATA[activeCourseKey];
+    document.getElementById('studentCourseEditor').value = c.sampleCode;
+    document.getElementById('studentCourseTerminal').textContent = 'Starter code reset. Click "Run & Test Code" to execute.';
+  };
+
+  window.launchActiveCourseLesson = function(){
+    window.selectStudentView('visualizer');
+    if(activeCourseKey === 'py') window.selectStudentTopic('loops');
+    else if(activeCourseKey === 'java') window.selectStudentTopic('javaOop');
+    else if(activeCourseKey === 'cprog') window.selectStudentTopic('cPointers');
+    toast(`Launched interactive code tracer for ${activeCourseKey.toUpperCase()}`);
+  };
+
+  window.loadTaskIntoDocEditor = function(taskTitle){
+    window.selectStudentView('myAssign');
+    const doc = document.getElementById('wordDocEditor');
+    if(doc){
+      doc.innerHTML = `<h3>${escapeHTML(taskTitle)}: Solution &amp; Engineering Analysis</h3><p><strong>Student:</strong> ${currentUser ? currentUser.name : 'Alex Rivera'} (${currentUser ? currentUser.id : 'S-001'})</p><p><strong>Course:</strong> ${COURSES_DATA[activeCourseKey].title}</p><p>Write your technical response, code explanation, and complexity analysis below:</p><hr/><p><em>[Draft auto-saved to secure institutional storage]</em></p>`;
+    }
+    toast(`Preloaded task into Word Doc editor: ${taskTitle}`);
+  };
+
+  window.dispatchCourseLab = function(){
+    toast(`Dispatched live course lab for ${COURSES_DATA[activeCourseKey].code} to 42 enrolled students.`);
+  };
+
+  window.publishActiveCourseCheatsheet = function(){
+    toast(`Cheatsheet for ${COURSES_DATA[activeCourseKey].code} verified and published to cohort.`);
+  };
+
+  window.openPolicyStandalone = function(policyType){
+    if(currentUser && currentUser.role === 'teacher'){
+      window.selectTeacherView(policyType === 'privacy' ? 'privacyPolicy' : 'termsConditions');
+    } else if(currentUser && currentUser.role === 'student'){
+      window.selectStudentView(policyType === 'privacy' ? 'sPrivacy' : 'sTerms');
+    } else {
+      alert(policyType === 'privacy' 
+        ? 'Data Privacy Policy: LearnAI complies strictly with FERPA (34 CFR Part 99), India DPDP Act 2023, and GDPR. All telemetry is zero-PII and processed in client-side sandboxes.'
+        : 'Terms and Conditions: Academic integrity rules require all submitted code to be student original work. Students retain 100% intellectual property rights.');
+    }
+  };
+
+  // ── LIVE MEETING CONTROLS & TERMINAL ──
+  window.toggleScreenShare = function(){
+    isScreenSharing = !isScreenSharing;
+    document.getElementById('btnToggleScreen').textContent = isScreenSharing ? 'Stop Screen' : 'Share Screen';
+    document.getElementById('screenShareTitle').textContent = isScreenSharing ? 'Faculty Screen: CS-301 LRU Cache & Pointer Mechanics' : '[Screen Share Paused by Faculty]';
+    toast(isScreenSharing ? 'Screen broadcast active' : 'Screen broadcast paused');
+  };
+
+  window.toggleMic = function(){
+    isMicOn = !isMicOn;
+    document.getElementById('btnMic').textContent = isMicOn ? 'Mic: On' : 'Mic: Muted';
+    toast(isMicOn ? 'Microphone unmuted' : 'Microphone muted');
+  };
+
+  window.toggleCam = function(){
+    isCamOn = !isCamOn;
+    document.getElementById('btnCam').textContent = isCamOn ? 'Camera: On' : 'Camera: Off';
+    toast(isCamOn ? 'Video feed enabled' : 'Video feed disabled');
+  };
+
+  window.nextLiveCodeStep = function(){
+    liveStepIdx = (liveStepIdx + 1) % LIVE_STEPS.length;
+    const step = LIVE_STEPS[liveStepIdx];
+
+    // Highlight broadcast lines
+    document.querySelectorAll('#liveBroadcastCode .cln').forEach(el => el.classList.remove('hl'));
+    const lineEl = document.getElementById(step.codeId);
+    if(lineEl) lineEl.classList.add('hl');
+
+    // Update explanation
+    document.getElementById('liveExplanationText').textContent = step.text;
+    document.getElementById('studentLiveExplanationText').textContent = step.text;
+
+    // Echo to terminal
+    const term = document.getElementById('termOutput');
+    const line = document.createElement('div');
+    line.className = 'term-line';
+    line.style.color = '#38BDF8';
+    line.textContent = `[TRACER STEP ${liveStepIdx+1}] ${step.text}`;
+    term.appendChild(line);
+    term.scrollTop = term.scrollHeight;
+
+    toast(`Stepped to line ${step.line}`);
+  };
+
+  window.handleTermKey = function(e){
+    if(e.key === 'Enter') window.executeTermCommand();
+  };
+
+  window.executeTermCommand = function(){
+    const input = document.getElementById('termInput');
+    const cmd = input.value.trim();
+    if(!cmd) return;
+    input.value = '';
+
+    const term = document.getElementById('termOutput');
+    const studentTerm = document.getElementById('studentTermOutput');
+
+    function appendLine(container, text, color = '#A7F3D0'){
+      const d = document.createElement('div');
+      d.className = 'term-line';
+      d.style.color = color;
+      d.textContent = text;
+      container.appendChild(d);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    appendLine(term, `instructor@cs301:~$ ${cmd}`, '#38BDF8');
+    appendLine(studentTerm, `broadcast@cs301:~$ ${cmd}`, '#38BDF8');
+
+    const lower = cmd.toLowerCase();
+    if(lower === 'help'){
+      appendLine(term, 'Available commands: run, step, python3, javac, gcc, valgrind, clear, whoami');
+    } else if(lower.startsWith('python3') || lower === 'run'){
+      appendLine(term, '>> Executing lru_cache.py unit test suite...');
+      appendLine(term, '>> Test 1: Bounded eviction on capacity=2 ... OK');
+      appendLine(term, '>> Test 2: Double-ended pointer update ... OK');
+      appendLine(term, '>> Time Complexity: O(1) across 100,000 operations.', '#34D399');
+      appendLine(studentTerm, '>> [LIVE BROADCAST] Test suite passed with O(1) performance.', '#34D399');
+    } else if(lower.startsWith('valgrind') || lower.startsWith('gcc')){
+      appendLine(term, '>> Compiling and executing under Valgrind memory leak checker...');
+      appendLine(term, '>> ==10482== HEAP SUMMARY: in use at exit: 0 bytes in 0 blocks');
+      appendLine(term, '>> ==10482== All heap blocks were freed -- no leaks are possible', '#34D399');
+    } else if(lower === 'step'){
+      window.nextLiveCodeStep();
+    } else if(lower === 'clear'){
+      term.innerHTML = '<div class="term-line" style="color:#94A3B8">Terminal buffer cleared.</div>';
+    } else if(lower === 'whoami'){
+      appendLine(term, `User: ${currentUser ? currentUser.name : 'anonymous'} (Encrypted Session)`);
+    } else {
+      appendLine(term, `Command executed: ${cmd} (Process returned 0)`);
+    }
+  };
+
+  window.sendMeetingChat = function(){
+    const inp = document.getElementById('meetingChatInput');
+    const txt = inp.value.trim();
+    if(!txt) return;
+    inp.value = '';
+
+    const box = document.getElementById('chatMsgsBox');
+    const sbox = document.getElementById('studentChatMsgsBox');
+    const safeTxt = escapeHTML(txt);
+
+    const d = document.createElement('div');
+    d.className = 'chat-msg';
+    d.innerHTML = `<strong>${currentUser.name} (Faculty):</strong> ${safeTxt}`;
+    box.appendChild(d);
+    box.scrollTop = box.scrollHeight;
+
+    const sd = document.createElement('div');
+    sd.className = 'chat-msg';
+    sd.innerHTML = `<strong>${currentUser.name} (Faculty):</strong> ${safeTxt}`;
+    sbox.appendChild(sd);
+    sbox.scrollTop = sbox.scrollHeight;
+  };
+
+  window.sendStudentMeetingChat = function(){
+    const inp = document.getElementById('studentMeetingChatInput');
+    const txt = inp.value.trim();
+    if(!txt) return;
+    inp.value = '';
+
+    const box = document.getElementById('chatMsgsBox');
+    const sbox = document.getElementById('studentChatMsgsBox');
+    const safeTxt = escapeHTML(txt);
+
+    const d = document.createElement('div');
+    d.className = 'chat-msg';
+    d.innerHTML = `<strong>${currentUser.name} (Student):</strong> ${safeTxt}`;
+    box.appendChild(d);
+    box.scrollTop = box.scrollHeight;
+
+    const sd = document.createElement('div');
+    sd.className = 'chat-msg';
+    sd.innerHTML = `<strong>${currentUser.name} (You):</strong> ${safeTxt}`;
+    sbox.appendChild(sd);
+    sbox.scrollTop = sbox.scrollHeight;
+  };
+
+  // Toast
+  window.toast = function(msg){
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.style.display = 'block';
+    clearTimeout(window._tt);
+    window._tt = setTimeout(()=>{ t.style.display = 'none'; }, 2600);
+  };
+
+  // Init & Deep Link Hash Routing
+  window.addEventListener('DOMContentLoaded', () => {
+    // Render default datasets if defined
+    if(typeof window.loadPresetDataset === 'function'){
+      window.loadPresetDataset('python');
+    }
+
+    const hash = (window.location.hash || '').replace('#', '');
+    if(hash.startsWith('teacher')){
+      currentUser = { id: 'T-001', role: 'teacher', name: 'Sarah J.', session: 'mock-session-t001' };
+      enterPortal();
+      if(hash === 'teacher-courses-py') window.switchClassCohort('py');
+      else if(hash === 'teacher-courses-java') window.switchClassCohort('java');
+      else if(hash === 'teacher-courses-cprog') window.switchClassCohort('cprog');
+      else if(hash === 'teacher-meeting') window.selectTeacherView('liveMeeting');
+      else window.selectTeacherView('aiDesk');
+    } else if(hash.startsWith('student')){
+      currentUser = { id: 'S-001', role: 'student', name: 'Alex Rivera', session: 'mock-session-s001' };
+      enterPortal();
+      if(hash === 'student-courses-py') window.openStudentCourse('py');
+      else if(hash === 'student-courses-java') window.openStudentCourse('java');
+      else if(hash === 'student-courses-cprog') window.openStudentCourse('cprog');
+      else if(hash === 'student-assign') window.selectStudentView('myAssign');
+      else window.selectStudentView('visualizer');
+    }
+  });
+
+})();
+</script>
+</body>
+</html>

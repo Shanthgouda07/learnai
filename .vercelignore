@@ -1,0 +1,7 @@
+# Vercel Deployment Ignore
+backend/
+frontend/
+.venv/
+node_modules/
+.pytest_cache/
+*.pyc

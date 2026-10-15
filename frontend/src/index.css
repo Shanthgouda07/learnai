@@ -1,0 +1,355 @@
+@import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Sora:wght@600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ═══════════════════════════════════════════════════════════════════
+   LEARNING UNIVERSE DESIGN SYSTEM TOKENS (CSS Variables)
+   ═══════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* Short-form universe tokens (as specified in reference) */
+  --bg: #05070D;
+  --s1: #0B1020;
+  --s2: #121933;
+  --tx: #EEF1F8;
+  --mu: #9AA4BF;
+  --ac: #22D3EE;
+  --ar: 34, 211, 238;
+  --am: #F59E0B;
+  --co: #FB7185;
+  --bd: rgba(255, 255, 255, 0.14);
+  --so: 1;
+
+  /* Typography */
+  --font-display: 'Sora', 'Space Grotesk', system-ui, sans-serif;
+  --font-base: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-scale: 100%;
+  --line-spacing: 1.5;
+  --letter-spacing: normal;
+
+  /* Expanded Semantic Mappings */
+  --color-bg: var(--bg);
+  --color-card: var(--s1);
+  --color-card-muted: var(--s2);
+  --color-surface-elevated: #1B2446;
+  --color-surface-hover: #182245;
+  --color-border: var(--bd);
+  --color-border-subtle: rgba(255, 255, 255, 0.05);
+  --color-border-glow: rgba(34, 211, 238, 0.4);
+
+  --color-ink: var(--tx);
+  --color-ink-muted: var(--mu);
+  --color-ink-subtle: #64748B;
+
+  --color-teal: var(--ac);
+  --color-teal-hover: #38BDF8;
+  --color-teal-wash: rgba(34, 211, 238, 0.12);
+  --color-teal-glow: 0 0 20px rgba(34, 211, 238, 0.35);
+
+  --color-amber: var(--am);
+  --color-amber-hover: #FBBF24;
+  --color-amber-wash: rgba(245, 158, 11, 0.14);
+
+  --color-support: var(--co);
+  --color-support-wash: rgba(251, 113, 133, 0.14);
+
+  --color-success: #10B981;
+  --color-success-wash: rgba(16, 185, 129, 0.14);
+  --color-warning: var(--am);
+  --color-warning-wash: rgba(245, 158, 11, 0.14);
+  --color-danger: var(--co);
+  --color-danger-wash: rgba(251, 113, 133, 0.14);
+  --color-info: var(--ac);
+  --color-info-wash: rgba(34, 211, 238, 0.12);
+
+  --color-focus: var(--ac);
+  --shadow-mission-panel: 0 8px 32px 0 rgba(0, 0, 0, 0.45);
+}
+
+/* ─── Clean Aerospace Light Mode Variant ─── */
+@media(prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]):not(.dark) {
+    --bg: #F4F7FB;
+    --s1: #FFFFFF;
+    --s2: #E8EEF7;
+    --tx: #0B1020;
+    --mu: #4A5576;
+    --ac: #0E7490;
+    --ar: 14, 116, 144;
+    --am: #B45309;
+    --co: #BE123C;
+    --bd: rgba(11, 16, 32, 0.18);
+    --so: 0;
+  }
+}
+
+:root[data-theme="light"], html.light {
+  --bg: #F4F7FB;
+  --s1: #FFFFFF;
+  --s2: #E8EEF7;
+  --tx: #0B1020;
+  --mu: #4A5576;
+  --ac: #0E7490;
+  --ar: 14, 116, 144;
+  --am: #B45309;
+  --co: #BE123C;
+  --bd: rgba(11, 16, 32, 0.18);
+  --so: 0;
+}
+
+/* ─── High Contrast Accessibility Modes ─── */
+html.high-contrast {
+  --bg: #000000 !important;
+  --s1: #000000 !important;
+  --s2: #111111 !important;
+  --tx: #FFFFFF !important;
+  --mu: #EEEEEE !important;
+  --ac: #FFFF00 !important;
+  --am: #FFA500 !important;
+  --co: #FF3366 !important;
+  --bd: #FFFFFF !important;
+  --so: 0 !important;
+}
+
+/* ─── Typography Selection Overrides ─── */
+html.font-atkinson {
+  --font-base: 'Atkinson Hyperlegible', sans-serif !important;
+  --font-display: 'Atkinson Hyperlegible', sans-serif !important;
+}
+
+html.font-opendyslexic {
+  --font-base: 'OpenDyslexic', 'Comic Sans MS', cursive !important;
+  --font-display: 'OpenDyslexic', 'Comic Sans MS', cursive !important;
+}
+
+/* ─── Base Styles ─── */
+html {
+  font-size: var(--font-scale);
+  scroll-behavior: smooth;
+  scroll-padding-top: env(safe-area-inset-top, 0px);
+}
+
+body {
+  font-family: var(--font-base);
+  background-color: var(--bg);
+  color: var(--tx);
+  line-height: var(--line-spacing);
+  letter-spacing: var(--letter-spacing);
+  margin: 0;
+  min-height: 100vh;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, .brand {
+  font-family: var(--font-display);
+}
+
+/* Fixed Twinkling Sky Canvas */
+#sky {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  opacity: var(--so);
+  pointer-events: none;
+}
+
+/* Keyboard Focus Rings */
+:focus-visible, button:focus-visible, [tabindex]:focus-visible {
+  outline: 3px solid var(--ac) !important;
+  outline-offset: 2px !important;
+}
+
+/* Reduced Motion Override */
+html.reduced-motion *,
+html.reduced-motion *::before,
+html.reduced-motion *::after {
+  animation: none !important;
+  transition: none !important;
+  scroll-behavior: auto !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Touch Targets: minimum 44px */
+button, a.btn, input[type="button"], input[type="submit"], select, .touch-target {
+  min-height: 44px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   LEARNING UNIVERSE COMPONENT STYLES
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* Card Surface */
+.card, .mission-card, .notebook-card {
+  background: var(--s1);
+  border: 1px solid var(--bd);
+  border-radius: 16px;
+  padding: 16px;
+}
+
+/* HUD & Chips */
+.hud {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.chip {
+  border: 1px solid var(--bd);
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 14px;
+  background: var(--s1);
+  color: var(--tx);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pts {
+  color: var(--am);
+  font-weight: 600;
+}
+
+.mu {
+  color: var(--mu);
+}
+
+/* "Why is this dim?" / Needs Support Explanation */
+.why {
+  border-left: 3px solid var(--co);
+  padding: 10px 14px;
+  background: var(--s2);
+  border-radius: 8px;
+  margin: 12px 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Badges */
+.badge {
+  font-size: 12px;
+  border: 1px solid var(--ac);
+  color: var(--ac);
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-family: var(--font-base);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* SVG Knowledge Map Nodes */
+svg.map {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.node {
+  cursor: pointer;
+}
+
+.node:focus-visible .ring, .node.sel .ring {
+  stroke: var(--tx) !important;
+  stroke-width: 2 !important;
+}
+
+@keyframes ig {
+  0% { r: 14; opacity: .9; }
+  100% { r: 70; opacity: 0; }
+}
+
+.ignite .pulse {
+  animation: ig 1s ease-out 2;
+}
+
+/* Teacher Heatmap Matrix Table */
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+th, td {
+  padding: 8px 6px;
+  text-align: center;
+  border-bottom: 1px solid var(--bd);
+  font-size: 14px;
+}
+
+th:first-child, td:first-child {
+  text-align: left;
+}
+
+.cell {
+  border-radius: 8px;
+  padding: 6px 4px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.nd {
+  background: repeating-linear-gradient(45deg, transparent 0 4px, var(--bd) 4px 5px);
+  color: var(--mu);
+}
+
+.low {
+  border: 1px dashed var(--mu);
+  font-style: italic;
+}
+
+.wrap {
+  overflow-x: auto;
+}
+
+/* Class Observatory Cards */
+.cc {
+  display: block;
+  width: 100%;
+  height: auto;
+  padding: 16px;
+  text-align: left;
+  background: var(--s1);
+  border: 1px solid var(--bd);
+  border-radius: 16px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.cc:hover {
+  border-color: var(--ac);
+}
+
+.cc[aria-current="true"] {
+  border-color: var(--ac);
+  box-shadow: 0 0 0 1px var(--ac), 0 0 15px rgba(34, 211, 238, 0.2);
+}
+
+/* Floating Bottom Toast */
+#toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  background: var(--s2);
+  border: 1px solid var(--ac);
+  color: var(--tx);
+  padding: 10px 18px;
+  border-radius: 12px;
+  z-index: 50;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+}

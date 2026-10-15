@@ -1,0 +1,7 @@
+{
+  "variables": [],
+  "conditionals": ["variables"],
+  "loops": ["variables"],
+  "functions": ["variables", "conditionals"],
+  "lists": ["variables", "loops"]
+}

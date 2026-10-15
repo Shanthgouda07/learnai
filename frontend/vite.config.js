@@ -9,4 +9,17 @@ export default defineConfig({
       '/api': 'http://localhost:8000',
     },
   },
+  build: {
+    chunkSizeWarningLimit: 1600,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react-router-dom'],
+          ui: ['lucide-react', 'framer-motion', 'react-hot-toast'],
+          editor: ['@monaco-editor/react'],
+        },
+      },
+    },
+  },
 })
+

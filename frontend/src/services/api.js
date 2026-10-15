@@ -10,8 +10,27 @@ const api = axios.create({
 })
 
 
-// Attach JWT token from localStorage on every request
+// Forward Vercel share token if present (supports shareable links with deployment protection)
+let shareToken = null
+if (typeof window !== 'undefined') {
+  const params = new URLSearchParams(window.location.search)
+  const tokenFromUrl = params.get('_vercel_share')
+  if (tokenFromUrl) {
+    shareToken = tokenFromUrl
+    try { sessionStorage.setItem('_vercel_share', tokenFromUrl) } catch (_) {}
+  } else {
+    try { shareToken = sessionStorage.getItem('_vercel_share') } catch (_) {}
+  }
+}
+
+// Attach JWT token from localStorage and Vercel share token on every request
 api.interceptors.request.use((config) => {
+  if (shareToken) {
+    config.params = config.params || {}
+    if (!config.params._vercel_share) {
+      config.params._vercel_share = shareToken
+    }
+  }
   const stored = localStorage.getItem('learnai-auth')
   if (stored) {
     try {

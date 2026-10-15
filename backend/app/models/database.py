@@ -16,11 +16,17 @@ def set_sqlite_pragma(dbapi_connection, connection_record):
     """Enable WAL mode, busy timeout, and cache for high-concurrency zero-lag SQLite."""
     cursor = dbapi_connection.cursor()
     try:
-        cursor.execute("PRAGMA journal_mode=WAL")
-        cursor.execute("PRAGMA synchronous=NORMAL")
-        cursor.execute("PRAGMA busy_timeout=10000")
-        cursor.execute("PRAGMA cache_size=-64000")  # 64MB in-memory page cache
-        cursor.execute("PRAGMA foreign_keys=ON")
+        try:
+            cursor.execute("PRAGMA journal_mode=WAL")
+        except Exception:
+            pass
+        try:
+            cursor.execute("PRAGMA synchronous=NORMAL")
+            cursor.execute("PRAGMA busy_timeout=10000")
+            cursor.execute("PRAGMA cache_size=-64000")
+            cursor.execute("PRAGMA foreign_keys=ON")
+        except Exception:
+            pass
     finally:
         cursor.close()
 
@@ -34,4 +40,3 @@ def get_db():
         yield db
     finally:
         db.close()
-

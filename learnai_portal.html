@@ -207,11 +207,16 @@ tbody td{padding:7px 10px;font-size:12px;color:var(--slate-800)}
 /* Toast */
 #toast{position:fixed;bottom:16px;right:16px;background:var(--slate-900);color:#FFFFFF;padding:8px 14px;border-radius:var(--radius);font-size:12px;font-weight:500;box-shadow:var(--shadow-md);z-index:500;max-width:320px;border-left:3px solid var(--accent);pointer-events:none;display:none}
 
-/* Footer Legal Navigation */
-.app-footer{background:#FFFFFF;border-top:1px solid var(--border-light);padding:6px 16px;display:flex;align-items:center;justify-content:space-between;font-size:11px;color:var(--slate-500);flex-shrink:0}
-.footer-links{display:flex;gap:12px}
-.footer-link{color:var(--slate-600);text-decoration:none;cursor:pointer}
-.footer-link:hover{color:var(--accent)}
+/* Course View Specific Styles */
+.course-tabs-bar{display:flex;gap:4px;border-bottom:1px solid var(--border-light);background:#FFFFFF;padding:0 14px}
+.course-tab-item{padding:10px 14px;font-size:12px;font-weight:600;color:var(--slate-600);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.15s}
+.course-tab-item:hover{color:var(--slate-900);background:var(--bg-subtle)}
+.course-tab-item.active{color:var(--accent);border-bottom-color:var(--accent);background:transparent}
+.course-banner{background:#FFFFFF;border:1px solid var(--border-light);border-radius:var(--radius);padding:14px;display:flex;justify-content:space-between;align-items:center;box-shadow:var(--shadow-sm);margin-bottom:12px}
+.course-module-item{border:1px solid var(--border-light);border-radius:var(--radius);padding:12px;background:#FFFFFF;display:flex;flex-direction:column;gap:6px;transition:border-color 0.15s}
+.course-module-item:hover{border-color:var(--accent)}
+.course-code-editor{background:#0F172A;border:1px solid #1E293B;border-radius:var(--radius);color:#F8FAFC;font-family:'JetBrains Mono',monospace;font-size:12px;padding:12px;width:100%;height:200px;resize:vertical;outline:none;line-height:1.5}
+.course-code-terminal{background:#050C1A;border:1px solid #1E293B;border-radius:var(--radius);padding:10px;font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#34D399;min-height:95px;max-height:190px;overflow-y:auto;white-space:pre-wrap}
 </style>
 </head>
 <body>
@@ -282,6 +287,7 @@ tbody td{padding:7px 10px;font-size:12px;color:var(--slate-800)}
       LearnAI
     </div>
     <div class="nav-links">
+      <a class="nav-link" id="tnav-courses" onclick="switchClassCohort('py')">Courses &amp; Syllabus</a>
       <a class="nav-link active" id="tnav-dash" onclick="selectTeacherView('aiDesk')">Telemetry Desk</a>
       <a class="nav-link" id="tnav-meeting" onclick="selectTeacherView('liveMeeting')">Live Meeting &amp; Lab</a>
       <a class="nav-link" id="tnav-notes" onclick="selectTeacherView('aiNotes')">Notes and Cheatsheets</a>
@@ -350,15 +356,21 @@ tbody td{padding:7px 10px;font-size:12px;color:var(--slate-800)}
         </div>
 
         <hr class="sdiv"/>
-        <div class="sb-hd">Active Track</div>
+        <div class="sb-hd">Academic Courses &amp; Labs</div>
         <div class="si active" id="tsi-c-py" onclick="switchClassCohort('py')">
+          <svg class="sicon" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
           <span class="slabel">Python CS-301</span>
+          <span class="tag tag-accent">Core</span>
         </div>
         <div class="si" id="tsi-c-java" onclick="switchClassCohort('java')">
+          <svg class="sicon" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
           <span class="slabel">Java JVM Core</span>
+          <span class="tag tag-default">Core</span>
         </div>
         <div class="si" id="tsi-c-cprog" onclick="switchClassCohort('cprog')">
+          <svg class="sicon" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
           <span class="slabel">C Systems Programming</span>
+          <span class="tag tag-default">Systems</span>
         </div>
       </div>
 
@@ -974,6 +986,94 @@ tbody td{padding:7px 10px;font-size:12px;color:var(--slate-800)}
         </div>
       </div>
 
+      <!-- VIEW: TEACHER COURSE CURRICULUM & SYLLABUS -->
+      <div class="view-pane" id="tv-courseView">
+        <div class="course-banner">
+          <div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <span class="tag tag-accent" id="tcBadge">Python 3.12+</span>
+              <span style="font-size:11px;color:var(--slate-500);font-family:'JetBrains Mono',monospace" id="tcCode">CS-301</span>
+              <span class="tag tag-default" id="tcStatusTag">Active Cohort</span>
+            </div>
+            <div class="ptitle" style="margin-top:4px" id="tcTitle">Python CS-301: Advanced Systems, Data Structures &amp; Concurrency</div>
+            <div style="font-size:12px;color:var(--slate-600);margin-top:2px" id="tcDesc">In-depth study of CPython internals, Global Interpreter Lock (GIL), asynchronous event loops, and high-performance algorithms.</div>
+          </div>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-s" id="tcCourseBtnPy" onclick="switchClassCohort('py')">Python</button>
+            <button class="btn btn-s" id="tcCourseBtnJava" onclick="switchClassCohort('java')">Java</button>
+            <button class="btn btn-s" id="tcCourseBtnC" onclick="switchClassCohort('cprog')">C Systems</button>
+            <button class="btn btn-p" onclick="dispatchCourseLab()">Dispatch Course Lab</button>
+          </div>
+        </div>
+
+        <!-- Course Sub-Tabs -->
+        <div class="card" style="border-radius:var(--radius)">
+          <div class="course-tabs-bar">
+            <div class="course-tab-item active" id="tctab-btn-modules" onclick="switchCourseSubTab('modules')">Curriculum &amp; Syllabus (Units 1-5)</div>
+            <div class="course-tab-item" id="tctab-btn-sandbox" onclick="switchCourseSubTab('sandbox')">Interactive Code Lab &amp; Compiler</div>
+            <div class="course-tab-item" id="tctab-btn-cheatsheet" onclick="switchCourseSubTab('cheatsheet')">Faculty Verified Cheatsheets</div>
+            <div class="course-tab-item" id="tctab-btn-assign" onclick="switchCourseSubTab('assign')">Course Lab Assignments</div>
+            <div class="course-tab-item" id="tctab-btn-telemetry" onclick="switchCourseSubTab('telemetry')">Cohort Diagnostic Mastery</div>
+          </div>
+
+          <!-- Subtab 1: Modules -->
+          <div class="card-body" id="tctab-modules">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+              <div>
+                <div style="font-size:13px;font-weight:700">Course Syllabus &amp; Learning Modules</div>
+                <div style="font-size:11.5px;color:var(--slate-500)">5 progressive units with deterministic prerequisite diagnostics</div>
+              </div>
+              <span class="tag tag-default" id="tcCohortBenchmark">Cohort Benchmark: 88%</span>
+            </div>
+            <div id="tcModulesContainer" style="display:flex;flex-direction:column;gap:10px"></div>
+          </div>
+
+          <!-- Subtab 2: Interactive Sandbox -->
+          <div class="card-body" id="tctab-sandbox" style="display:none">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+              <span style="font-size:12.5px;font-weight:700">Interactive Runtime Environment</span>
+              <div style="display:flex;gap:6px">
+                <button class="btn btn-p" onclick="runTeacherCourseCode()">Compile &amp; Execute</button>
+                <button class="btn btn-s" onclick="resetTeacherCourseCode()">Reset Starter</button>
+              </div>
+            </div>
+            <textarea class="course-code-editor" id="teacherCourseEditor" spellcheck="false"></textarea>
+            <div style="margin-top:10px">
+              <div style="font-size:11px;font-weight:700;color:var(--slate-600);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.05em">Compiler Output / Diagnostic Telemetry</div>
+              <div class="course-code-terminal" id="teacherCourseTerminal">Click "Compile &amp; Execute" to evaluate code in secure sandbox...</div>
+            </div>
+          </div>
+
+          <!-- Subtab 3: Cheatsheets -->
+          <div class="card-body" id="tctab-cheatsheet" style="display:none">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+              <div>
+                <div style="font-size:13px;font-weight:700" id="tcSheetTitle">Faculty Synthesized Cheatsheet</div>
+                <div style="font-size:11.5px;color:var(--slate-500)">Verified syllabus citations and syntax reference</div>
+              </div>
+              <button class="btn btn-p" onclick="publishActiveCourseCheatsheet()">Sync &amp; Publish to Students</button>
+            </div>
+            <div class="output-box" id="tcSheetBody" style="display:block;white-space:pre-wrap;font-family:'JetBrains Mono',monospace;font-size:12px;background:#F8FAFC"></div>
+          </div>
+
+          <!-- Subtab 4: Assignments -->
+          <div class="card-body" id="tctab-assign" style="display:none">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+              <div style="font-size:13px;font-weight:700">Assignments &amp; Physical Lab Requirements</div>
+              <button class="btn btn-s" onclick="selectTeacherView('assignManager')">Open Full Assignments Hub</button>
+            </div>
+            <div id="tcAssignmentsContainer" style="display:flex;flex-direction:column;gap:8px"></div>
+          </div>
+
+          <!-- Subtab 5: Telemetry -->
+          <div class="card-body" id="tctab-telemetry" style="display:none">
+            <div style="font-size:13px;font-weight:700;margin-bottom:4px">Course-Specific Diagnostic Mastery Telemetry</div>
+            <div style="font-size:11.5px;color:var(--slate-500);margin-bottom:12px">Breakdown of student performance across core concepts</div>
+            <div id="tcTelemetryContainer"></div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -988,6 +1088,7 @@ tbody td{padding:7px 10px;font-size:12px;color:var(--slate-800)}
       LearnAI
     </div>
     <div class="nav-links">
+      <a class="nav-link" id="snav-courses" onclick="openStudentCourse('py')">Enrolled Courses</a>
       <a class="nav-link active" id="snav-lab" onclick="selectStudentView('visualizer')">Code Tracer Lab</a>
       <a class="nav-link" id="snav-meeting" onclick="selectStudentView('sLiveMeeting')">Live Meeting &amp; Lab</a>
       <a class="nav-link" id="snav-notes" onclick="selectStudentView('myNotes')">Approved Notes &amp; Cheatsheets</a>
@@ -1036,6 +1137,24 @@ tbody td{padding:7px 10px;font-size:12px;color:var(--slate-800)}
         <div class="si" id="ssi-classResources" onclick="selectStudentView('classResources')">
           <svg class="sicon" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
           <span class="slabel">Course Downloads</span>
+        </div>
+
+        <hr class="sdiv"/>
+        <div class="sb-hd">Enrolled Courses</div>
+        <div class="si" id="ssi-c-py" onclick="openStudentCourse('py')">
+          <svg class="sicon" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+          <span class="slabel">Python CS-301</span>
+          <span class="tag tag-accent">Enrolled</span>
+        </div>
+        <div class="si" id="ssi-c-java" onclick="openStudentCourse('java')">
+          <svg class="sicon" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+          <span class="slabel">Java JVM Core</span>
+          <span class="tag tag-default">Enrolled</span>
+        </div>
+        <div class="si" id="ssi-c-cprog" onclick="openStudentCourse('cprog')">
+          <svg class="sicon" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+          <span class="slabel">C Systems Programming</span>
+          <span class="tag tag-default">Enrolled</span>
         </div>
 
         <hr class="sdiv"/>
@@ -1364,6 +1483,81 @@ tbody td{padding:7px 10px;font-size:12px;color:var(--slate-800)}
         </div>
       </div>
 
+      <!-- VIEW: STUDENT COURSE HUB -->
+      <div class="view-pane" id="sv-sCourseView">
+        <div class="course-banner">
+          <div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <span class="tag tag-accent" id="scBadge">Python 3.12+</span>
+              <span style="font-size:11px;color:var(--slate-500);font-family:'JetBrains Mono',monospace" id="scCode">CS-301</span>
+              <span class="tag tag-default">Enrolled</span>
+            </div>
+            <div class="ptitle" style="margin-top:4px" id="scTitle">Python CS-301: Advanced Systems, Data Structures &amp; Concurrency</div>
+            <div style="font-size:12px;color:var(--slate-600);margin-top:2px" id="scDesc">In-depth study of CPython internals, Global Interpreter Lock (GIL), asynchronous event loops, and high-performance algorithms.</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+            <div style="font-size:11px;color:var(--slate-500)">Your Current Mastery</div>
+            <div style="font-size:20px;font-weight:700;color:var(--green)" id="scMyMastery">96%</div>
+            <div style="display:flex;gap:4px">
+              <button class="btn btn-s" style="padding:3px 8px;font-size:11px" onclick="openStudentCourse('py')">Python</button>
+              <button class="btn btn-s" style="padding:3px 8px;font-size:11px" onclick="openStudentCourse('java')">Java</button>
+              <button class="btn btn-s" style="padding:3px 8px;font-size:11px" onclick="openStudentCourse('cprog')">C Prog</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="border-radius:var(--radius)">
+          <div class="course-tabs-bar">
+            <div class="course-tab-item active" id="sctab-btn-modules" onclick="switchStudentCourseSubTab('modules')">Curriculum &amp; Chapters</div>
+            <div class="course-tab-item" id="sctab-btn-sandbox" onclick="switchStudentCourseSubTab('sandbox')">Interactive Code Playground</div>
+            <div class="course-tab-item" id="sctab-btn-cheatsheet" onclick="switchStudentCourseSubTab('cheatsheet')">Approved Course Cheatsheets</div>
+            <div class="course-tab-item" id="sctab-btn-assign" onclick="switchStudentCourseSubTab('assign')">Assignments &amp; Labs</div>
+          </div>
+
+          <!-- Student Subtab 1: Modules -->
+          <div class="card-body" id="sctab-modules">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+              <div>
+                <div style="font-size:13px;font-weight:700">Course Learning Modules &amp; Prerequisites</div>
+                <div style="font-size:11.5px;color:var(--slate-500)">Work through units and test code in sandbox</div>
+              </div>
+              <button class="btn btn-p" onclick="launchActiveCourseLesson()">Open Active Code Tracer</button>
+            </div>
+            <div id="scModulesContainer" style="display:flex;flex-direction:column;gap:10px"></div>
+          </div>
+
+          <!-- Student Subtab 2: Sandbox -->
+          <div class="card-body" id="sctab-sandbox" style="display:none">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+              <span style="font-size:12.5px;font-weight:700">In-Browser Code Execution &amp; Memory Sandbox</span>
+              <div style="display:flex;gap:6px">
+                <button class="btn btn-p" onclick="runStudentCourseCode()">Run &amp; Test Code</button>
+                <button class="btn btn-s" onclick="resetStudentCourseCode()">Reset Code</button>
+              </div>
+            </div>
+            <textarea class="course-code-editor" id="studentCourseEditor" spellcheck="false"></textarea>
+            <div style="margin-top:10px">
+              <div style="font-size:11px;font-weight:700;color:var(--slate-600);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.05em">Sandbox Terminal &amp; Assertion Results</div>
+              <div class="course-code-terminal" id="studentCourseTerminal">Click "Run &amp; Test Code" to execute in local browser sandbox...</div>
+            </div>
+          </div>
+
+          <!-- Student Subtab 3: Cheatsheets -->
+          <div class="card-body" id="sctab-cheatsheet" style="display:none">
+            <div style="font-size:13px;font-weight:700;margin-bottom:2px" id="scSheetTitle">Verified Course Cheatsheet</div>
+            <div style="font-size:11.5px;color:var(--slate-500);margin-bottom:12px">Authoritative notes verified and approved by Prof. Sarah J.</div>
+            <div class="output-box" id="scSheetBody" style="display:block;white-space:pre-wrap;font-family:'JetBrains Mono',monospace;font-size:12px;background:#F8FAFC"></div>
+          </div>
+
+          <!-- Student Subtab 4: Assignments -->
+          <div class="card-body" id="sctab-assign" style="display:none">
+            <div style="font-size:13px;font-weight:700;margin-bottom:4px">Course Lab Assignments</div>
+            <div style="font-size:11.5px;color:var(--slate-500);margin-bottom:12px">Complete tasks in the built-in Word Doc editor or upload attachments</div>
+            <div id="scAssignmentsContainer" style="display:flex;flex-direction:column;gap:8px"></div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -1479,8 +1673,8 @@ tbody td{padding:7px 10px;font-size:12px;color:var(--slate-800)}
       document.getElementById('teacherPage').classList.add('active');
       document.getElementById('studentPage').classList.remove('active');
       window.selectTeacherView('aiDesk');
-      window.loadPresetDataset('python');
-      window.renderTeacherAssignmentsTable();
+      if(typeof window.loadPresetDataset === 'function') window.loadPresetDataset('python');
+      if(typeof window.renderTeacherAssignmentsTable === 'function') window.renderTeacherAssignmentsTable();
       toast(`Authenticated as ${currentUser.name}. Faculty session active.`);
     } else {
       document.getElementById('studentPage').classList.add('active');
@@ -1488,8 +1682,8 @@ tbody td{padding:7px 10px;font-size:12px;color:var(--slate-800)}
       document.getElementById('studentName').textContent = currentUser.name;
       document.getElementById('studentIdLabel').textContent = `${currentUser.id}: CS-301`;
       window.selectStudentView('visualizer');
-      window.renderStudentPublishedNotes();
-      window.populateStudentAssignments();
+      if(typeof window.renderStudentPublishedNotes === 'function') window.renderStudentPublishedNotes();
+      if(typeof window.populateStudentAssignments === 'function') window.populateStudentAssignments();
       toast(`Authenticated as ${currentUser.name}. Student session active.`);
     }
   }
@@ -1502,16 +1696,109 @@ tbody td{padding:7px 10px;font-size:12px;color:var(--slate-800)}
     toast('Session terminated securely.');
   };
 
+  // ── COURSES DATA & CURRICULUM ARCHITECTURE ──
+  const COURSES_DATA = {
+    py: {
+      code: 'CS-301',
+      title: 'Python CS-301: Advanced Systems, Data Structures & Concurrency',
+      badge: 'Python 3.12+',
+      status: 'Active Cohort',
+      desc: 'In-depth study of CPython internals, Global Interpreter Lock (GIL), asynchronous event loops (asyncio), memory management, and high-performance algorithms.',
+      benchmark: 'Cohort Benchmark: 88%',
+      studentMastery: '96%',
+      modules: [
+        { num: 1, title: 'CPython Architecture & Memory Layout', time: 'Week 1-2', status: 'Completed', desc: 'Object structures (PyObject), reference counting mechanics, and generational cyclic garbage collection (Gen 0/1/2).' },
+        { num: 2, title: 'High-Performance Data Structures', time: 'Week 3-4', status: 'Active Lab', desc: 'O(1) LRU Cache implementation with sentinel doubly-linked nodes and dictionary key mapping.' },
+        { num: 3, title: 'Concurrency Models: GIL vs Multiprocessing', time: 'Week 5-7', status: 'Upcoming', desc: 'Comparative execution profiles: ProcessPoolExecutor, ThreadPoolExecutor, and asyncio event loops.' },
+        { num: 4, title: 'Advanced Generators & Memory Efficiency', time: 'Week 8-10', status: 'Upcoming', desc: 'Memory footprints of generators vs lists, itertools pipelines, and custom iterators.' },
+        { num: 5, title: 'Systems Profiling & Optimization', time: 'Week 11-14', status: 'Upcoming', desc: 'cProfile, memory_profiler, C-extensions, and Cython compilation bottlenecks.' }
+      ],
+      sampleCode: `class LRUCache:\n    def __init__(self, capacity: int):\n        self.cap = capacity\n        self.cache = {}\n        # Sentinel head and tail nodes\n        self.head, self.tail = Node(0, 0), Node(0, 0)\n        self.head.next, self.tail.prev = self.tail, self.head\n\n    def get(self, key: int) -> int:\n        if key in self.cache:\n            node = self.cache[key]\n            self._remove(node)\n            self._add(node)\n            return node.val\n        return -1\n\n    def put(self, key: int, value: int) -> None:\n        if key in self.cache:\n            self._remove(self.cache[key])\n        node = Node(key, value)\n        self._add(node)\n        self.cache[key] = node\n        if len(self.cache) > self.cap:\n            lru = self.tail.prev\n            self._remove(lru)\n            del self.cache[lru.key]\n\n# Instantiate and run unit verification\ncache = LRUCache(2)\ncache.put(1, 100)\ncache.put(2, 200)\nprint("Cache Lookup key 1:", cache.get(1))\nprint("Memory Profile: Sentinel double-linked pointers valid.")`,
+      sampleOutput: `>> Python 3.12.2 (CPython Interpreter Runtime)\n>> Initialized LRUCache with bounded capacity=2\n>> Inserted Node(1, 100) -> Placed at MRU Head\n>> Inserted Node(2, 200) -> Placed at MRU Head\n>> Cache Lookup key 1: 100\n>> Memory Profile: Sentinel double-linked pointers valid.\n>> Time Complexity: O(1) constant time verified | Zero GC cycle leaks detected.`,
+      cheatsheet: `# PYTHON CS-301 FACULTY CHEATSHEET\n1. GIL & CONCURRENCY:\n   - Python threads share a single GIL; suitable for I/O bound tasks.\n   - CPU-bound tasks require multiprocessing (ProcessPoolExecutor) to bypass GIL.\n   - asyncio event loops use cooperative multitasking without thread context-switching overhead.\n\n2. CPYTHON MEMORY MODEL:\n   - Primary GC: Reference Counting. When PyObject->ob_refcnt drops to 0, memory is freed immediately.\n   - Secondary GC: Generational Garbage Collector collects cyclic isolates across Gen 0, 1, and 2.\n\n3. LRU CACHE O(1) MECHANICS:\n   - Doubly Linked List maintains access ordering (MRU head, LRU tail).\n   - Python dict maps key -> Node pointer for instant constant-time lookup.`,
+      assignments: [
+        { id: 'T-PY-01', title: 'Assignment 1: Thread-Safe Async Pipeline', due: 'In 3 Days', mode: 'Online Word Doc / Code Attachment', weight: '20% of Grade', desc: 'Build an asyncio worker pool handling 10,000 asynchronous telemetry packets.' },
+        { id: 'T-PY-02', title: 'Lab 2: Bounded LRU Cache Implementation', due: 'In 7 Days', mode: 'Online Inbuilt Editor', weight: '25% of Grade', desc: 'Implement O(1) get/put with sentinel head/tail pointers and handle eviction.' }
+      ],
+      telemetry: [
+        { student: 'Alex Rivera (S-001)', m1: '96%', m2: '94%', m3: '90%', m4: '92%', status: 'Mastered' },
+        { student: 'Casey Smith (S-004)', m1: '68%', m2: '45%', m3: '38%', m4: '40%', status: 'Intervention' },
+        { student: 'Emery Kumar (S-012)', m1: '85%', m2: '80%', m3: '78%', m4: '82%', status: 'On Track' },
+        { student: 'Jordan Miller (S-015)', m1: '80%', m2: '74%', m3: '55%', m4: '70%', status: 'Developing' }
+      ]
+    },
+    java: {
+      code: 'CS-302',
+      title: 'Java CS-302: JVM Internals, Concurrency & Enterprise Architecture',
+      badge: 'Java 21 LTS',
+      status: 'Active Cohort',
+      desc: 'Comprehensive analysis of JVM memory anatomy (Heap, Metaspace, Thread Stacks), JIT compilation (C1/C2 tiers), memory visibility under JMM, and lock-free concurrency.',
+      benchmark: 'Cohort Benchmark: 82%',
+      studentMastery: '88%',
+      modules: [
+        { num: 1, title: 'JVM Memory Anatomy & ClassLoading', time: 'Week 1-2', status: 'Completed', desc: 'Bootstrap, Extension, Application classloaders, Metaspace vs Permanent Gen, and bytecode verification.' },
+        { num: 2, title: 'Java Memory Model & Concurrency', time: 'Week 3-5', status: 'Active Lab', desc: 'Volatile memory semantics, happens-before ordering, synchronized vs ReentrantLock, and condition queues.' },
+        { num: 3, title: 'Garbage Collection Algorithms', time: 'Week 6-8', status: 'Upcoming', desc: 'Generational hypothesis, ZGC, Shenandoah, G1 GC pause time targets, and allocation rates.' },
+        { num: 4, title: 'Lock-Free Collections & Ring Buffers', time: 'Week 9-11', status: 'Upcoming', desc: 'AtomicReference, Compare-And-Swap (CAS), ConcurrentLinkedQueue, and LMAX Disruptor patterns.' },
+        { num: 5, title: 'Virtual Threads & Project Loom', time: 'Week 12-14', status: 'Upcoming', desc: 'Carrier threads vs virtual thread scheduling, non-blocking I/O throughput benchmarks.' }
+      ],
+      sampleCode: `public class RingBuffer<T> {\n    private final Object[] buffer;\n    private final int capacity;\n    private volatile long writeSeq = 0;\n    private volatile long readSeq = 0;\n\n    public RingBuffer(int capacity) {\n        this.capacity = capacity;\n        this.buffer = new Object[capacity];\n    }\n\n    public boolean offer(T item) {\n        if (writeSeq - readSeq >= capacity) {\n            return false; // Buffer full: zero-allocation backpressure\n        }\n        buffer[(int)(writeSeq % capacity)] = item;\n        writeSeq++;\n        return true;\n    }\n\n    @SuppressWarnings("unchecked")\n    public T poll() {\n        if (readSeq >= writeSeq) return null; // Empty\n        T item = (T) buffer[(int)(readSeq % capacity)];\n        readSeq++;\n        return item;\n    }\n}\n\n// Driver test runner\nRingBuffer<String> rb = new RingBuffer<>(4);\nrb.offer("Packet_001");\nrb.offer("Packet_002");\nSystem.out.println("Polled packet: " + rb.poll());`,
+      sampleOutput: `>> OpenJDK 64-Bit Server VM (build 21.0.2+13-LTS)\n>> JIT Tier 4 C2 Compiler Enabled\n>> Inlining method RingBuffer.offer(T) [18 bytes bytecode -> native x86_64]\n>> Polled packet: Packet_001\n>> Microbenchmark: 38.4M operations/sec | Zero garbage collection allocations.`,
+      cheatsheet: `# JAVA CS-302 JVM ARCHITECTURE CHEATSHEET\n1. JVM RUNTIME DATA REGIONS:\n   - Heap: Eden, Survivor (S0/S1), Tenured (Old Gen). Shared across threads.\n   - Metaspace: Native off-heap memory storing class metadata, method bytecode, runtime constant pool.\n   - JVM Stack: Per-thread stack frames storing local variables (primitive values and object references).\n\n2. JAVA MEMORY MODEL (JMM):\n   - volatile: Guarantees visibility across CPU caches and prevents instruction reordering (memory barriers).\n   - synchronized: Intrinsic monitor locks providing mutual exclusion and cache flush.\n   - ReentrantLock: Fairness flags, tryLock(), and multiple Condition wait-queues.`,
+      assignments: [
+        { id: 'T-JV-01', title: 'Lab 1: Thread-Safe Lock-Free Ring Buffer', due: 'In 4 Days', mode: 'Online Inbuilt Word Doc / Code Upload', weight: '20% of Grade', desc: 'Implement atomic CAS ring buffer with zero object allocation during poll/offer cycles.' },
+        { id: 'T-JV-02', title: 'Lab 2: Metaspace & Dynamic ClassLoader Profiler', due: 'In 9 Days', mode: 'Offline Physical Lab CS-204', weight: '20% of Grade', desc: 'Profile class loading limits and monitor memory exhaustion under custom ClassLoaders.' }
+      ],
+      telemetry: [
+        { student: 'Alex Rivera (S-001)', m1: '92%', m2: '88%', m3: '85%', m4: '88%', status: 'Mastered' },
+        { student: 'Casey Smith (S-004)', m1: '64%', m2: '36%', m3: '32%', m4: '40%', status: 'Intervention' },
+        { student: 'Emery Kumar (S-012)', m1: '82%', m2: '74%', m3: '70%', m4: '75%', status: 'On Track' },
+        { student: 'Jordan Miller (S-015)', m1: '78%', m2: '64%', m3: '44%', m4: '62%', status: 'Developing' }
+      ]
+    },
+    cprog: {
+      code: 'CS-201',
+      title: 'C Systems Programming CS-201: Pointers, Memory & OS Interfaces',
+      badge: 'C23 / POSIX',
+      status: 'Active Cohort',
+      desc: 'Rigorous systems programming: virtual memory, pointer arithmetic, dynamic heap allocators, cache alignment, POSIX system calls, and Valgrind diagnostic profiling.',
+      benchmark: 'Cohort Benchmark: 79%',
+      studentMastery: '90%',
+      modules: [
+        { num: 1, title: 'Pointer Arithmetic & Memory Layout', time: 'Week 1-3', status: 'Completed', desc: 'Stack frames, pointer-to-pointer (**pp), array decaying, and struct byte padding.' },
+        { num: 2, title: 'Dynamic Memory Management & Allocators', time: 'Week 4-6', status: 'Active Lab', desc: 'malloc, calloc, realloc, sbrk, mmap, and custom free-list memory allocator implementations.' },
+        { num: 3, title: 'POSIX File Descriptors & System Calls', time: 'Week 7-9', status: 'Upcoming', desc: 'open, read, write, select/epoll, non-blocking I/O multiplexing, and pipe IPC.' },
+        { num: 4, title: 'Process Control & Signals', time: 'Week 10-12', status: 'Upcoming', desc: 'fork, execve, waitpid, signal handlers, reentrant functions, and zombie prevention.' },
+        { num: 5, title: 'Valgrind Profiling & Memory Leak Mitigation', time: 'Week 13-14', status: 'Upcoming', desc: 'Memcheck diagnostic analysis, addressing undefined behavior, buffer overflows, and double free bugs.' }
+      ],
+      sampleCode: `#include <stdio.h>\n#include <stdlib.h>\n#include <stdint.h>\n\ntypedef struct MemoryBlock {\n    size_t size;\n    uint8_t is_free;\n    struct MemoryBlock *next;\n} MemoryBlock;\n\nMemoryBlock* allocate_block(size_t size) {\n    MemoryBlock *b = (MemoryBlock*)malloc(sizeof(MemoryBlock) + size);\n    if (!b) return NULL;\n    b->size = size;\n    b->is_free = 0;\n    b->next = NULL;\n    return b;\n}\n\nint main() {\n    printf(">> Initializing Custom Free-List Memory Allocator...\\n");\n    MemoryBlock *b1 = allocate_block(256);\n    printf(">> Block allocated at %p (Payload: %zu bytes)\\n", (void*)b1, b1->size);\n    free(b1);\n    printf(">> Block freed cleanly. Memory leak verification passed.\\n");\n    return 0;\n}`,
+      sampleOutput: `>> gcc -Wall -Wextra -Werror -O2 -g allocator.c -o allocator_test\n>> valgrind --leak-check=full --show-leak-kinds=all ./allocator_test\n>> ==14291== Memcheck, a memory error detector\n>> >> Initializing Custom Free-List Memory Allocator...\n>> >> Block allocated at 0x5608c1a932a0 (Payload: 256 bytes)\n>> >> Block freed cleanly. Memory leak verification passed.\n>> ==14291== HEAP SUMMARY:\n>> ==14291==     in use at exit: 0 bytes in 0 blocks\n>> ==14291==   total heap usage: 1 allocs, 1 frees, 280 bytes allocated\n>> ==14291== All heap blocks were freed -- no leaks are possible`,
+      cheatsheet: `# C SYSTEMS PROGRAMMING CS-201 CHEATSHEET\n1. POINTER ARITHMETIC & STRUCT ALIGNMENT:\n   - Pointer addition (p + 1) advances by sizeof(*p) bytes.\n   - Struct padding: Struct members align to multiples of their natural size (e.g. 8 bytes for 64-bit pointers).\n   - Dereferencing NULL or freed memory results in SIGSEGV (Segmentation Fault).\n\n2. HEAP ALLOCATOR CONTRACTS:\n   - malloc(size): Allocates uninitialized heap bytes.\n   - calloc(num, size): Allocates zero-initialized heap bytes.\n   - free(ptr): Releases allocation back to free list. Always set ptr = NULL after free.\n\n3. VALGRIND DIAGNOSTICS:\n   - "Definitely lost": Memory leak with no remaining pointers.\n   - "Invalid read/write of size N": Heap buffer overflow or use-after-free.`,
+      assignments: [
+        { id: 'T-C-01', title: 'Lab 1: Custom Explicit Free-List Allocator', due: 'In 5 Days', mode: 'Online Word Doc / .c File Upload', weight: '25% of Grade', desc: 'Implement malloc and free using first-fit segregated free lists with coalesce optimization.' },
+        { id: 'T-C-02', title: 'Lab 2: POSIX Multi-Process Pipeline', due: 'In 8 Days', mode: 'Offline Physical Lab CS-204', weight: '20% of Grade', desc: 'Build IPC pipeline using fork(), pipe(), and dup2() with zombie process reaping.' }
+      ],
+      telemetry: [
+        { student: 'Alex Rivera (S-001)', m1: '90%', m2: '92%', m3: '88%', m4: '90%', status: 'Mastered' },
+        { student: 'Casey Smith (S-004)', m1: '52%', m2: '36%', m3: '30%', m4: '42%', status: 'Intervention' },
+        { student: 'Emery Kumar (S-012)', m1: '80%', m2: '76%', m3: '72%', m4: '80%', status: 'On Track' },
+        { student: 'Jordan Miller (S-015)', m1: '72%', m2: '58%', m3: '48%', m4: '64%', status: 'Developing' }
+      ]
+    }
+  };
+
+  let activeCourseKey = 'py';
+
   // ── VIEW SWITCHING ──
   window.selectTeacherView = function(viewId){
     if(!currentUser || currentUser.role !== 'teacher') return;
-    const items = ['aiDesk','liveMeeting','aiNotes','assignManager','uploadCenter','classOverview','needsAttention','auditLogs','privacyPolicy','termsConditions'];
+    const items = ['aiDesk','liveMeeting','aiNotes','assignManager','uploadCenter','classOverview','needsAttention','auditLogs','privacyPolicy','termsConditions','courseView'];
     items.forEach(id => {
       const el = document.getElementById('tsi-' + id);
       if(el) el.classList.toggle('active', id === viewId);
     });
 
-    const navMap = { aiDesk:'tnav-dash', liveMeeting:'tnav-meeting', aiNotes:'tnav-notes', assignManager:'tnav-assign', uploadCenter:'tnav-upload', classOverview:'tnav-students' };
+    const navMap = { aiDesk:'tnav-dash', liveMeeting:'tnav-meeting', aiNotes:'tnav-notes', assignManager:'tnav-assign', uploadCenter:'tnav-upload', classOverview:'tnav-students', courseView:'tnav-courses' };
     document.querySelectorAll('#teacherPage .nav-links .nav-link').forEach(n => n.classList.remove('active'));
     if(navMap[viewId]) document.getElementById(navMap[viewId]).classList.add('active');
 
@@ -1524,13 +1811,13 @@ tbody td{padding:7px 10px;font-size:12px;color:var(--slate-800)}
 
   window.selectStudentView = function(viewId){
     if(!currentUser || currentUser.role !== 'student') return;
-    const items = ['visualizer', 'sLiveMeeting', 'myNotes', 'myAssign', 'classResources', 'sPrivacy', 'sTerms'];
+    const items = ['visualizer', 'sLiveMeeting', 'myNotes', 'myAssign', 'classResources', 'sPrivacy', 'sTerms', 'sCourseView'];
     items.forEach(id => {
       const el = document.getElementById('ssi-' + id);
       if(el) el.classList.toggle('active', id === viewId);
     });
 
-    const navMap = { visualizer:'snav-lab', sLiveMeeting:'snav-meeting', myNotes:'snav-notes', myAssign:'snav-assign', classResources:'snav-res' };
+    const navMap = { visualizer:'snav-lab', sLiveMeeting:'snav-meeting', myNotes:'snav-notes', myAssign:'snav-assign', classResources:'snav-res', sCourseView:'snav-courses' };
     document.querySelectorAll('#studentPage .nav-links .nav-link').forEach(n => n.classList.remove('active'));
     if(navMap[viewId]) document.getElementById(navMap[viewId]).classList.add('active');
 
@@ -1540,6 +1827,239 @@ tbody td{padding:7px 10px;font-size:12px;color:var(--slate-800)}
 
     if(viewId === 'myNotes') window.renderStudentPublishedNotes();
     toast(`Navigation: ${viewId}`);
+  };
+
+  // ── COURSE CONTROLLERS ──
+  window.switchClassCohort = function(courseKey){
+    if(!COURSES_DATA[courseKey]) courseKey = 'py';
+    activeCourseKey = courseKey;
+
+    ['py','java','cprog'].forEach(k => {
+      const el = document.getElementById('tsi-c-' + k);
+      if(el) el.classList.toggle('active', k === courseKey);
+    });
+
+    const btnMap = { py: 'tcCourseBtnPy', java: 'tcCourseBtnJava', cprog: 'tcCourseBtnC' };
+    Object.keys(btnMap).forEach(k => {
+      const b = document.getElementById(btnMap[k]);
+      if(b){
+        b.className = (k === courseKey) ? 'btn btn-p' : 'btn btn-s';
+      }
+    });
+
+    const cData = COURSES_DATA[courseKey];
+    const tagEl = document.getElementById('activeClassTag');
+    if(tagEl) tagEl.textContent = `Faculty: ${cData.code}`;
+
+    window.selectTeacherView('courseView');
+    renderTeacherCourseView(courseKey);
+    toast(`Loaded Course: ${cData.code} - ${cData.title}`);
+  };
+
+  window.openStudentCourse = function(courseKey){
+    if(!COURSES_DATA[courseKey]) courseKey = 'py';
+    activeCourseKey = courseKey;
+
+    ['py','java','cprog'].forEach(k => {
+      const el = document.getElementById('ssi-c-' + k);
+      if(el) el.classList.toggle('active', k === courseKey);
+    });
+
+    const cData = COURSES_DATA[courseKey];
+    const sTag = document.getElementById('studentIdLabel');
+    if(sTag && currentUser) sTag.textContent = `${currentUser.id}: ${cData.code}`;
+
+    window.selectStudentView('sCourseView');
+    renderStudentCourseView(courseKey);
+    toast(`Enrolled Course: ${cData.code} - ${cData.title}`);
+  };
+
+  function renderTeacherCourseView(key){
+    const c = COURSES_DATA[key];
+    if(!c) return;
+    document.getElementById('tcBadge').textContent = c.badge;
+    document.getElementById('tcCode').textContent = c.code;
+    document.getElementById('tcTitle').textContent = c.title;
+    document.getElementById('tcDesc').textContent = c.desc;
+    document.getElementById('tcCohortBenchmark').textContent = c.benchmark;
+
+    const modBox = document.getElementById('tcModulesContainer');
+    modBox.innerHTML = c.modules.map(m => `
+      <div class="course-module-item">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span class="tag tag-accent" style="font-size:11px">Unit ${m.num}</span>
+            <strong style="font-size:12.5px">${escapeHTML(m.title)}</strong>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="font-size:11px;color:var(--slate-500)">${escapeHTML(m.time)}</span>
+            <span class="tag ${m.status === 'Completed' ? 'tag-accent' : m.status === 'Active Lab' ? 'tag-warn' : 'tag-default'}">${m.status}</span>
+          </div>
+        </div>
+        <div style="font-size:12px;color:var(--slate-600);margin-top:2px">${escapeHTML(m.desc)}</div>
+        <div style="margin-top:4px;display:flex;gap:6px">
+          <button class="btn btn-s" style="padding:3px 8px;font-size:11px" onclick="switchCourseSubTab('sandbox')">Open Sandbox</button>
+          <button class="btn btn-s" style="padding:3px 8px;font-size:11px" onclick="toast('Dispatched diagnostic test for Unit ${m.num} to cohort.')">Dispatch Unit Diagnostic</button>
+        </div>
+      </div>
+    `).join('');
+
+    document.getElementById('teacherCourseEditor').value = c.sampleCode;
+    document.getElementById('teacherCourseTerminal').textContent = `Compiler ready for ${c.badge}. Click "Compile & Execute" to evaluate.`;
+    document.getElementById('tcSheetTitle').textContent = `Faculty Verified Cheatsheet: ${c.code}`;
+    document.getElementById('tcSheetBody').textContent = c.cheatsheet;
+
+    const aBox = document.getElementById('tcAssignmentsContainer');
+    aBox.innerHTML = c.assignments.map(a => `
+      <div style="border:1px solid var(--border-light);padding:10px;border-radius:var(--radius);background:#FFFFFF">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <strong style="font-size:12px">${escapeHTML(a.title)}</strong>
+          <span class="tag tag-accent">${escapeHTML(a.weight)}</span>
+        </div>
+        <div style="font-size:11.5px;color:var(--slate-600);margin-top:4px">${escapeHTML(a.desc)}</div>
+        <div style="font-size:11px;color:var(--slate-500);margin-top:4px">Submission Mode: ${escapeHTML(a.mode)} | Due: ${escapeHTML(a.due)}</div>
+      </div>
+    `).join('');
+
+    const tBox = document.getElementById('tcTelemetryContainer');
+    tBox.innerHTML = `
+      <table>
+        <thead>
+          <tr><th>Student</th><th>Unit 1</th><th>Unit 2</th><th>Unit 3</th><th>Unit 4</th><th>Prereq Status</th></tr>
+        </thead>
+        <tbody>
+          ${c.telemetry.map(row => `
+            <tr>
+              <td><strong>${escapeHTML(row.student)}</strong></td>
+              <td><span class="sc-box" style="background:#DCFCE7;color:#166534">${row.m1}</span></td>
+              <td><span class="sc-box" style="background:#DCFCE7;color:#166534">${row.m2}</span></td>
+              <td><span class="sc-box" style="background:#FEF3C7;color:#92400E">${row.m3}</span></td>
+              <td><span class="sc-box" style="background:#DCFCE7;color:#166534">${row.m4}</span></td>
+              <td><span class="tag ${row.status === 'Mastered' ? 'tag-accent' : row.status === 'Intervention' ? 'tag-danger' : 'tag-default'}">${row.status}</span></td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `;
+  }
+
+  function renderStudentCourseView(key){
+    const c = COURSES_DATA[key];
+    if(!c) return;
+    document.getElementById('scBadge').textContent = c.badge;
+    document.getElementById('scCode').textContent = c.code;
+    document.getElementById('scTitle').textContent = c.title;
+    document.getElementById('scDesc').textContent = c.desc;
+    document.getElementById('scMyMastery').textContent = c.studentMastery;
+
+    const modBox = document.getElementById('scModulesContainer');
+    modBox.innerHTML = c.modules.map(m => `
+      <div class="course-module-item">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span class="tag tag-accent" style="font-size:11px">Unit ${m.num}</span>
+            <strong style="font-size:12.5px">${escapeHTML(m.title)}</strong>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="font-size:11px;color:var(--slate-500)">${escapeHTML(m.time)}</span>
+            <span class="tag ${m.status === 'Completed' ? 'tag-accent' : m.status === 'Active Lab' ? 'tag-warn' : 'tag-default'}">${m.status}</span>
+          </div>
+        </div>
+        <div style="font-size:12px;color:var(--slate-600);margin-top:2px">${escapeHTML(m.desc)}</div>
+        <div style="margin-top:4px;display:flex;gap:6px">
+          <button class="btn btn-p" style="padding:3px 8px;font-size:11px" onclick="launchActiveCourseLesson()">Step Through Code Lesson</button>
+          <button class="btn btn-s" style="padding:3px 8px;font-size:11px" onclick="switchStudentCourseSubTab('sandbox')">Practice in Sandbox</button>
+        </div>
+      </div>
+    `).join('');
+
+    document.getElementById('studentCourseEditor').value = c.sampleCode;
+    document.getElementById('studentCourseTerminal').textContent = `Local Sandbox ready for ${c.badge}. Click "Run & Test Code" to execute.`;
+    document.getElementById('scSheetTitle').textContent = `Approved Course Cheatsheet: ${c.code}`;
+    document.getElementById('scSheetBody').textContent = c.cheatsheet;
+
+    const aBox = document.getElementById('scAssignmentsContainer');
+    aBox.innerHTML = c.assignments.map(a => `
+      <div style="border:1px solid var(--border-light);padding:10px;border-radius:var(--radius);background:#FFFFFF;display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <strong style="font-size:12px">${escapeHTML(a.title)}</strong>
+          <div style="font-size:11.5px;color:var(--slate-600);margin-top:2px">${escapeHTML(a.desc)}</div>
+          <div style="font-size:11px;color:var(--slate-500);margin-top:2px">Due: ${escapeHTML(a.due)} | Weight: ${escapeHTML(a.weight)}</div>
+        </div>
+        <button class="btn btn-p" style="padding:5px 10px;font-size:11px;white-space:nowrap" onclick="loadTaskIntoDocEditor('${escapeHTML(a.title)}')">Open in Word Doc</button>
+      </div>
+    `).join('');
+  }
+
+  window.switchCourseSubTab = function(subTab){
+    const tabs = ['modules','sandbox','cheatsheet','assign','telemetry'];
+    tabs.forEach(t => {
+      const btn = document.getElementById('tctab-btn-' + t);
+      const pane = document.getElementById('tctab-' + t);
+      if(btn) btn.classList.toggle('active', t === subTab);
+      if(pane) pane.style.display = (t === subTab) ? 'block' : 'none';
+    });
+  };
+
+  window.switchStudentCourseSubTab = function(subTab){
+    const tabs = ['modules','sandbox','cheatsheet','assign'];
+    tabs.forEach(t => {
+      const btn = document.getElementById('sctab-btn-' + t);
+      const pane = document.getElementById('sctab-' + t);
+      if(btn) btn.classList.toggle('active', t === subTab);
+      if(pane) pane.style.display = (t === subTab) ? 'block' : 'none';
+    });
+  };
+
+  window.runTeacherCourseCode = function(){
+    const term = document.getElementById('teacherCourseTerminal');
+    const c = COURSES_DATA[activeCourseKey];
+    term.textContent = ">> Compiling with optimization flags -O2...\n" + c.sampleOutput;
+    toast('Code compiled and executed successfully.');
+  };
+
+  window.resetTeacherCourseCode = function(){
+    const c = COURSES_DATA[activeCourseKey];
+    document.getElementById('teacherCourseEditor').value = c.sampleCode;
+    document.getElementById('teacherCourseTerminal').textContent = 'Starter code reset. Click "Compile & Execute" to evaluate.';
+  };
+
+  window.runStudentCourseCode = function(){
+    const term = document.getElementById('studentCourseTerminal');
+    const c = COURSES_DATA[activeCourseKey];
+    term.textContent = ">> Launching browser WebAssembly/JS sandbox...\n" + c.sampleOutput;
+    toast('Code executed cleanly in local sandbox.');
+  };
+
+  window.resetStudentCourseCode = function(){
+    const c = COURSES_DATA[activeCourseKey];
+    document.getElementById('studentCourseEditor').value = c.sampleCode;
+    document.getElementById('studentCourseTerminal').textContent = 'Starter code reset. Click "Run & Test Code" to execute.';
+  };
+
+  window.launchActiveCourseLesson = function(){
+    window.selectStudentView('visualizer');
+    if(activeCourseKey === 'py') window.selectStudentTopic('loops');
+    else if(activeCourseKey === 'java') window.selectStudentTopic('javaOop');
+    else if(activeCourseKey === 'cprog') window.selectStudentTopic('cPointers');
+    toast(`Launched interactive code tracer for ${activeCourseKey.toUpperCase()}`);
+  };
+
+  window.loadTaskIntoDocEditor = function(taskTitle){
+    window.selectStudentView('myAssign');
+    const doc = document.getElementById('wordDocEditor');
+    if(doc){
+      doc.innerHTML = `<h3>${escapeHTML(taskTitle)}: Solution &amp; Engineering Analysis</h3><p><strong>Student:</strong> ${currentUser ? currentUser.name : 'Alex Rivera'} (${currentUser ? currentUser.id : 'S-001'})</p><p><strong>Course:</strong> ${COURSES_DATA[activeCourseKey].title}</p><p>Write your technical response, code explanation, and complexity analysis below:</p><hr/><p><em>[Draft auto-saved to secure institutional storage]</em></p>`;
+    }
+    toast(`Preloaded task into Word Doc editor: ${taskTitle}`);
+  };
+
+  window.dispatchCourseLab = function(){
+    toast(`Dispatched live course lab for ${COURSES_DATA[activeCourseKey].code} to 42 enrolled students.`);
+  };
+
+  window.publishActiveCourseCheatsheet = function(){
+    toast(`Cheatsheet for ${COURSES_DATA[activeCourseKey].code} verified and published to cohort.`);
   };
 
   window.openPolicyStandalone = function(policyType){
@@ -1552,15 +2072,6 @@ tbody td{padding:7px 10px;font-size:12px;color:var(--slate-800)}
         ? 'Data Privacy Policy: LearnAI complies strictly with FERPA (34 CFR Part 99), India DPDP Act 2023, and GDPR. All telemetry is zero-PII and processed in client-side sandboxes.'
         : 'Terms and Conditions: Academic integrity rules require all submitted code to be student original work. Students retain 100% intellectual property rights.');
     }
-  };
-
-  window.switchClassCohort = function(c){
-    document.getElementById('tsi-c-py').classList.toggle('active', c === 'py');
-    document.getElementById('tsi-c-java').classList.toggle('active', c === 'java');
-    document.getElementById('tsi-c-cprog').classList.toggle('active', c === 'cprog');
-    const names = { py:'Python CS-301', java:'Java JVM Core', cprog:'C Systems Programming' };
-    document.getElementById('activeClassTag').textContent = `Faculty: ${names[c]}`;
-    toast(`Active cohort: ${names[c]}`);
   };
 
   // ── LIVE MEETING CONTROLS & TERMINAL ──
@@ -1712,10 +2223,31 @@ tbody td{padding:7px 10px;font-size:12px;color:var(--slate-800)}
     window._tt = setTimeout(()=>{ t.style.display = 'none'; }, 2600);
   };
 
-  // Init
+  // Init & Deep Link Hash Routing
   window.addEventListener('DOMContentLoaded', () => {
-    // Render default datasets
-    window.loadPresetDataset('python');
+    // Render default datasets if defined
+    if(typeof window.loadPresetDataset === 'function'){
+      window.loadPresetDataset('python');
+    }
+
+    const hash = (window.location.hash || '').replace('#', '');
+    if(hash.startsWith('teacher')){
+      currentUser = { id: 'T-001', role: 'teacher', name: 'Sarah J.', session: 'mock-session-t001' };
+      enterPortal();
+      if(hash === 'teacher-courses-py') window.switchClassCohort('py');
+      else if(hash === 'teacher-courses-java') window.switchClassCohort('java');
+      else if(hash === 'teacher-courses-cprog') window.switchClassCohort('cprog');
+      else if(hash === 'teacher-meeting') window.selectTeacherView('liveMeeting');
+      else window.selectTeacherView('aiDesk');
+    } else if(hash.startsWith('student')){
+      currentUser = { id: 'S-001', role: 'student', name: 'Alex Rivera', session: 'mock-session-s001' };
+      enterPortal();
+      if(hash === 'student-courses-py') window.openStudentCourse('py');
+      else if(hash === 'student-courses-java') window.openStudentCourse('java');
+      else if(hash === 'student-courses-cprog') window.openStudentCourse('cprog');
+      else if(hash === 'student-assign') window.selectStudentView('myAssign');
+      else window.selectStudentView('visualizer');
+    }
   });
 
 })();
